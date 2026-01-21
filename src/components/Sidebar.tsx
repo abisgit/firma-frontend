@@ -9,7 +9,8 @@ import {
     Building2,
     Users,
     LogOut,
-    ShieldAlert
+    ShieldAlert,
+    FileStack
 } from 'lucide-react';
 import { clsx } from 'clsx';
 
@@ -33,9 +34,10 @@ export default function Sidebar({ role }: SidebarProps) {
     ];
 
     const orgItems: SidebarItem[] = [
-        { name: 'Overview', href: '/org/dashboard', icon: LayoutDashboard },
-        { name: 'Documents', href: '/org/documents', icon: FileText },
-        { name: 'Workflows', href: '/org/workflows', icon: GitPullRequest },
+        { name: 'Dashboard', href: '/org/dashboard', icon: LayoutDashboard },
+        { name: 'Letters', href: '/org/letters', icon: FileText },
+        { name: 'Templates', href: '/org/templates', icon: FileStack },
+        { name: 'Reports', href: '/org/reports', icon: GitPullRequest },
     ];
 
     const items = role === 'admin' ? adminItems : orgItems;
