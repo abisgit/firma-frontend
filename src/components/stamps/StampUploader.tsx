@@ -25,7 +25,7 @@ export default function StampUploader({ onSelect, onClose }: StampUploaderProps)
     const fetchStamps = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:3001/stamps', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/stamps`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.ok) {
@@ -47,7 +47,7 @@ export default function StampUploader({ onSelect, onClose }: StampUploaderProps)
 
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:3001/stamps', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/stamps`, {
                 method: 'POST',
                 headers: { Authorization: `Bearer ${token}` },
                 body: formData
@@ -71,7 +71,7 @@ export default function StampUploader({ onSelect, onClose }: StampUploaderProps)
 
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`http://localhost:3001/stamps/${id}`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/stamps/${id}`, {
                 method: 'DELETE',
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -116,7 +116,7 @@ export default function StampUploader({ onSelect, onClose }: StampUploaderProps)
                             onClick={() => onSelect(stamp)}
                             className="border border-gray-200 rounded-lg p-2 relative group cursor-pointer hover:border-blue-500 hover:shadow-md transition-all flex items-center justify-center aspect-video bg-gray-50"
                         >
-                            <img src={`http://localhost:3001${stamp.imageUrl}`} alt="Stamp" className="max-w-full max-h-full object-contain" />
+                            <img src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}${stamp.imageUrl}`} alt="Stamp" className="max-w-full max-h-full object-contain" />
 
                             <button
                                 onClick={(e) => handleDelete(e, stamp.id)}

@@ -34,7 +34,7 @@ export default function StampOverlay({
     return (
         <img
             ref={imgRef}
-            src={`http://localhost:3001${imageUrl}`}
+            src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}${imageUrl}`}
             alt="Signature Stamp"
             className={`absolute max-w-[150px] max-h-[100px] object-contain z-10 transition-shadow ${editable ? 'cursor-move hover:drop-shadow-lg' : ''} ${isDragging ? 'opacity-80' : ''}`}
             style={{

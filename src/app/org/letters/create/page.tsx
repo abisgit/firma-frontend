@@ -46,7 +46,7 @@ export default function CreateLetterPage() {
     const fetchTemplates = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:3001/templates?active=true', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/templates?active=true`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.ok) {
@@ -63,7 +63,7 @@ export default function CreateLetterPage() {
         setShowTemplates(false);
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`http://localhost:3001/templates/${templateId}`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/templates/${templateId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.ok) {
@@ -101,7 +101,7 @@ export default function CreateLetterPage() {
                 stampY: stampPos.y,
             };
 
-            const res = await fetch('http://localhost:3001/letters', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/letters`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

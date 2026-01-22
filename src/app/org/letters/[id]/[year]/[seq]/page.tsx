@@ -27,7 +27,7 @@ export default function LetterDetailPage() {
     const fetchLetter = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`http://localhost:3001/letters/${orgCode}/${year}/${seq}`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/letters/${orgCode}/${year}/${seq}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.ok) {
@@ -68,7 +68,7 @@ export default function LetterDetailPage() {
     const saveStampPosition = async (stampId: number, x: number, y: number) => {
         try {
             const token = localStorage.getItem('token');
-            await fetch(`http://localhost:3001/letters/${letter.id}/stamp`, {
+            await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/letters/${letter.id}/stamp`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
