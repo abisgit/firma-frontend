@@ -1,67 +1,130 @@
+
 "use client";
 
-import { useState } from 'react';
-import { ArrowLeft, Save, Send, Copy, Printer, FileText } from 'lucide-react';
+import { useEffect, useState, useRef } from 'react';
+import { ArrowLeft, Save, Send, Copy, Printer, FileText, Stamp as StampIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import StampUploader from '@/components/stamps/StampUploader';
+import StampOverlay from '@/components/stamps/StampOverlay';
 
 const letterTypes = [
-    { id: 'hierarchical', label: 'Hierarchical' },
-    { id: 'cross-structure', label: 'Cross-Structure' },
-    { id: 'staff', label: 'Staff' },
-    { id: 'c-staff', label: 'C-Staff' },
-    { id: 'head-office', label: 'Head Office' },
-    { id: 'guest', label: 'Guest' },
-];
-
-const templates = [
-    { id: '1', name: 'Budget Request Template', type: 'hierarchical' },
-    { id: '2', name: 'Staff Transfer Template', type: 'staff' },
-    { id: '3', name: 'Meeting Invitation Template', type: 'cross-structure' },
-    { id: '4', name: 'Official Notice Template', type: 'head-office' },
+    { id: 'HIERARCHICAL', label: 'Hierarchical' },
+    { id: 'CROSS_STRUCTURE', label: 'Cross-Structure' },
+    { id: 'STAFF', label: 'Staff' },
+    { id: 'C_STAFF', label: 'C-Staff' },
+    { id: 'HEAD_OFFICE', label: 'Head Office' },
+    { id: 'GUEST', label: 'Guest' },
 ];
 
 export default function CreateLetterPage() {
     const router = useRouter();
-    const [activeTab, setActiveTab] = useState('hierarchical');
+    const [activeTab, setActiveTab] = useState('HIERARCHICAL');
     const [showTemplates, setShowTemplates] = useState(true);
+    const [templates, setTemplates] = useState<any[]>([]);
     const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
 
+    // Stamp state
+    const [showStampModal, setShowStampModal] = useState(false);
+    const [selectedStamp, setSelectedStamp] = useState<any>(null);
+    const [stampPos, setStampPos] = useState({ x: 0.8, y: 0.8 });
+    const contentRef = useRef<HTMLDivElement>(null);
+
     const [formData, setFormData] = useState({
-        to: '',
-        type: 'official',
+        recipientOrgId: '',
+        recipientUserId: '',
+        letterType: 'HIERARCHICAL',
         date: new Date().toISOString().split('T')[0],
         subject: '',
         content: '',
     });
 
-    const handleTemplateSelect = (templateId: string) => {
-        setSelectedTemplate(templateId);
-        setShowTemplates(false);
-        // In real app, load template content
-        const template = templates.find(t => t.id === templateId);
-        if (template) {
-            setFormData(prev => ({
-                ...prev,
-                subject: `[From Template] ${template.name}`,
-                content: `Template content for ${template.name}...`
-            }));
+    useEffect(() => {
+        fetchTemplates();
+    }, []);
+
+    const fetchTemplates = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch('http://localhost:3001/templates?active=true', {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setTemplates(data);
+            }
+        } catch (err) {
+            console.error('Failed to fetch templates', err);
         }
     };
 
-    const handleSaveDraft = () => {
-        console.log('Saving draft...', formData);
-        alert('Letter saved as draft');
+    const handleTemplateSelect = async (templateId: string) => {
+        setSelectedTemplate(templateId);
+        setShowTemplates(false);
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`http://localhost:3001/templates/${templateId}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const template = await res.json();
+                setFormData(prev => ({
+                    ...prev,
+                    subject: template.name,
+                    content: template.content,
+                    letterType: template.letterType
+                }));
+                setActiveTab(template.letterType);
+            }
+        } catch (err) {
+            console.error('Failed to fetch template details', err);
+        }
     };
 
-    const handleSend = () => {
-        console.log('Sending letter...', formData);
-        alert('Letter sent successfully');
-        router.push('/org/letters');
+    const handleStampSelect = (stamp: any) => {
+        setSelectedStamp(stamp);
+        setShowStampModal(false);
+    };
+
+    const handleSaveDraft = async () => {
+        console.log('Saving draft', formData);
+    };
+
+    const handleSend = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const payload = {
+                ...formData,
+                classification: 'INTERNAL',
+                stampId: selectedStamp?.id,
+                stampX: stampPos.x,
+                stampY: stampPos.y,
+            };
+
+            const res = await fetch('http://localhost:3001/letters', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                const letter = await res.json();
+                alert('Letter created successfully');
+                router.push(`/org/letters/${letter.referenceNumber}`);
+            } else {
+                const err = await res.json();
+                alert(`Failed to send: ${err.message}`);
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Error sending letter');
+        }
     };
 
     const handleCopyCC = () => {
-        // Navigate to CC page
         router.push(`/org/letters/new/cc`);
     };
 
@@ -70,7 +133,7 @@ export default function CreateLetterPage() {
     };
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 relative">
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -86,7 +149,7 @@ export default function CreateLetterPage() {
 
             {/* Template Selection Modal */}
             {showTemplates && (
-                <div className="bg-card rounded-xl border border-border p-6">
+                <div className="bg-card rounded-xl border border-border p-6 mb-6">
                     <div className="flex justify-between items-center mb-4">
                         <h3 className="text-lg font-semibold text-primary">Choose a Template</h3>
                         <button
@@ -105,20 +168,23 @@ export default function CreateLetterPage() {
                             >
                                 <FileText className="w-8 h-8 text-primary mb-2 group-hover:scale-110 transition-transform" />
                                 <p className="font-medium text-sm">{template.name}</p>
-                                <p className="text-xs text-muted-foreground capitalize">{template.type}</p>
+                                <p className="text-xs text-muted-foreground capitalize">{template.letterType}</p>
                             </button>
                         ))}
                     </div>
                 </div>
             )}
 
-            {/* Letter Type Tabs */}
+            {/* Letter Form */}
             <div className="bg-card rounded-xl border border-border overflow-hidden">
                 <div className="flex border-b border-border overflow-x-auto">
                     {letterTypes.map((type) => (
                         <button
                             key={type.id}
-                            onClick={() => setActiveTab(type.id)}
+                            onClick={() => {
+                                setActiveTab(type.id);
+                                setFormData(prev => ({ ...prev, letterType: type.id }));
+                            }}
                             className={`px-6 py-3 font-medium text-sm whitespace-nowrap transition-colors ${activeTab === type.id
                                 ? 'bg-primary text-white border-b-2 border-primary'
                                 : 'text-muted-foreground hover:bg-muted/50'
@@ -129,36 +195,29 @@ export default function CreateLetterPage() {
                     ))}
                 </div>
 
-                {/* Letter Form */}
                 <div className="p-6 space-y-6">
                     {/* Form Fields */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-foreground mb-2">To</label>
-                            <select
-                                value={formData.to}
-                                onChange={(e) => setFormData({ ...formData, to: e.target.value })}
+                            <label className="block text-sm font-medium text-foreground mb-2">To (Org ID)</label>
+                            <input
+                                type="text"
+                                value={formData.recipientOrgId}
+                                onChange={(e) => setFormData({ ...formData, recipientOrgId: e.target.value })}
+                                placeholder="Enter Org ID..."
                                 className="w-full px-4 py-2 border border-input rounded-md focus:ring-2 focus:ring-primary outline-none"
-                            >
-                                <option value="">Select recipient...</option>
-                                <option value="org1">Ministry of Planning</option>
-                                <option value="org2">Ministry of Health</option>
-                                <option value="emp1">John Doe (Employee)</option>
-                                <option value="emp2">Jane Smith (Employee)</option>
-                            </select>
+                            />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-foreground mb-2">Type</label>
-                            <select
-                                value={formData.type}
-                                onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                            <label className="block text-sm font-medium text-foreground mb-2">Subject</label>
+                            <input
+                                type="text"
+                                value={formData.subject}
+                                onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                                placeholder="Enter letter subject..."
                                 className="w-full px-4 py-2 border border-input rounded-md focus:ring-2 focus:ring-primary outline-none"
-                            >
-                                <option value="official">Official</option>
-                                <option value="confidential">Confidential</option>
-                                <option value="urgent">Urgent</option>
-                            </select>
+                            />
                         </div>
 
                         <div>
@@ -172,28 +231,41 @@ export default function CreateLetterPage() {
                         </div>
                     </div>
 
-                    {/* Subject */}
+                    {/* Letter Content & Stamp */}
                     <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">Subject</label>
-                        <input
-                            type="text"
-                            value={formData.subject}
-                            onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                            placeholder="Enter letter subject..."
-                            className="w-full px-4 py-2 border border-input rounded-md focus:ring-2 focus:ring-primary outline-none"
-                        />
-                    </div>
+                        <div className="flex justify-between items-center mb-2">
+                            <label className="block text-sm font-medium text-foreground">Letter Content</label>
+                            <button
+                                onClick={() => setShowStampModal(true)}
+                                className="flex items-center gap-2 text-sm text-primary hover:underline"
+                            >
+                                <StampIcon className="w-4 h-4" />
+                                {selectedStamp ? 'Change Stamp' : 'Add Stamp'}
+                            </button>
+                        </div>
 
-                    {/* Letter Content */}
-                    <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">Letter Content</label>
-                        <div className="border border-border rounded-lg p-6 bg-white min-h-[400px]">
+                        <div
+                            ref={contentRef}
+                            className="border border-border rounded-lg p-6 bg-white min-h-[400px] relative"
+                        >
                             <textarea
                                 value={formData.content}
                                 onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                                placeholder="Type your letter content here..."
-                                className="w-full h-full min-h-[350px] outline-none resize-none"
+                                placeholder="Type your letter content..."
+                                className="w-full h-full min-h-[350px] outline-none resize-none bg-transparent relative z-0"
                             />
+
+                            {/* Stamp Overlay */}
+                            {selectedStamp && (
+                                <StampOverlay
+                                    imageUrl={selectedStamp.imageUrl}
+                                    initialX={stampPos.x}
+                                    initialY={stampPos.y}
+                                    editable={true}
+                                    onPositionChange={(x, y) => setStampPos({ x, y })}
+                                    parentRef={contentRef}
+                                />
+                            )}
                         </div>
                     </div>
 
@@ -229,12 +301,20 @@ export default function CreateLetterPage() {
                                 className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-md hover:bg-secondary transition-colors"
                             >
                                 <Send className="w-4 h-4" />
-                                Send Letter
+                                Create & Send
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
+
+            {/* Stamp Modal */}
+            {showStampModal && (
+                <StampUploader
+                    onSelect={handleStampSelect}
+                    onClose={() => setShowStampModal(false)}
+                />
+            )}
         </div>
     );
 }
