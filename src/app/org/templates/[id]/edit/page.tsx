@@ -4,54 +4,23 @@ import { useState, useEffect } from 'react';
 import { ArrowLeft, Save, FileText } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
+import dynamic from 'next/dynamic';
+
+const RichTextEditor = dynamic(() => import('@/components/editor/RichTextEditor'), {
+    ssr: false,
+    loading: () => <div className="h-[500px] w-full bg-muted animate-pulse rounded-lg" />
+});
 
 const letterTypes = [
-    'Hierarchical',
-    'Cross-Structure',
-    'Staff',
-    'C-Staff',
-    'Head Office',
-    'Guest',
+    { id: 'HIERARCHICAL', label: 'Hierarchical' },
+    { id: 'CROSS_STRUCTURE', label: 'Cross-Structure' },
+    { id: 'STAFF', label: 'Staff' },
+    { id: 'C_STAFF', label: 'C-Staff' },
+    { id: 'HEAD_OFFICE', label: 'Head Office' },
+    { id: 'GUEST', label: 'Guest' },
 ];
 
-// Mock template data - will be replaced with API call
-const mockTemplate = {
-    id: '1',
-    name: 'Budget Approval Request',
-    letterType: 'Hierarchical',
-    content: `[Organization Letterhead]
-
-Date: [Date]
-Reference Number: [Reference Number]
-
-To: [Recipient Name]
-     [Recipient Position]
-     [Recipient Organization]
-
-Subject: Budget Approval Request for [Period]
-
-Dear [Recipient Title],
-
-I am writing to request your approval for the budget allocation for [Department/Project Name] for the period of [Time Period].
-
-The proposed budget breakdown is as follows:
-- Personnel Costs: [Amount]
-- Operational Expenses: [Amount]
-- Capital Expenditure: [Amount]
-- Total: [Total Amount]
-
-This budget is essential for [Justification and objectives].
-
-We kindly request your review and approval at your earliest convenience.
-
-Respectfully,
-
-[Sender Name]
-[Sender Position]
-[Organization Name]
-[Contact Information]`,
-    isActive: true,
-};
+// No mock needed
 
 export default function EditTemplatePage() {
     const router = useRouter();
@@ -65,14 +34,36 @@ export default function EditTemplatePage() {
     });
 
     useEffect(() => {
-        // In real app, fetch template from API
-        setTimeout(() => {
-            setFormData(mockTemplate);
-            setLoading(false);
-        }, 500);
+        const fetchTemplate = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/templates/${params.id}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    setFormData({
+                        name: data.name,
+                        letterType: data.letterType,
+                        content: data.content,
+                        isActive: data.isActive
+                    });
+                } else {
+                    alert('Template not found');
+                    router.push('/org/templates');
+                }
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        if (params.id) {
+            fetchTemplate();
+        }
     }, [params.id]);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         if (!formData.name || !formData.content) {
@@ -80,29 +71,32 @@ export default function EditTemplatePage() {
             return;
         }
 
-        // In real app, this would be an API call
-        console.log('Updating template:', formData);
-        alert('Template updated successfully!');
-        router.push('/org/templates');
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/templates/${params.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify(formData)
+            });
+
+            if (res.ok) {
+                alert('Template updated successfully!');
+                router.push('/org/templates');
+            } else {
+                const err = await res.json();
+                alert(`Error: ${err.message}`);
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Failed to update template');
+        }
     };
 
     const insertPlaceholder = (placeholder: string) => {
-        const textarea = document.getElementById('template-content') as HTMLTextAreaElement;
-        if (textarea) {
-            const start = textarea.selectionStart;
-            const end = textarea.selectionEnd;
-            const text = formData.content;
-            const before = text.substring(0, start);
-            const after = text.substring(end);
-            const newContent = before + placeholder + after;
-
-            setFormData({ ...formData, content: newContent });
-
-            setTimeout(() => {
-                textarea.selectionStart = textarea.selectionEnd = start + placeholder.length;
-                textarea.focus();
-            }, 0);
-        }
+        setFormData(prev => ({ ...prev, content: prev.content + ` ${placeholder} ` }));
     };
 
     const placeholders = [
@@ -176,7 +170,7 @@ export default function EditTemplatePage() {
                                 required
                             >
                                 {letterTypes.map((type) => (
-                                    <option key={type} value={type}>{type}</option>
+                                    <option key={type.id} value={type.id}>{type.label}</option>
                                 ))}
                             </select>
                         </div>
@@ -220,13 +214,10 @@ export default function EditTemplatePage() {
                 <div className="bg-card rounded-xl border border-border p-6 space-y-4">
                     <h3 className="text-lg font-semibold text-primary">Template Content</h3>
 
-                    <div className="border border-border rounded-lg p-6 bg-white">
-                        <textarea
-                            id="template-content"
-                            value={formData.content}
-                            onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                            className="w-full h-[500px] outline-none resize-none font-mono text-sm"
-                            required
+                    <div className="bg-white border border-border rounded-lg overflow-hidden">
+                        <RichTextEditor
+                            content={formData.content}
+                            onChange={(html) => setFormData({ ...formData, content: html })}
                         />
                     </div>
 

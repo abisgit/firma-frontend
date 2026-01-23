@@ -4,26 +4,32 @@ import { useState } from 'react';
 import { ArrowLeft, Save, FileText } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
+
+const RichTextEditor = dynamic(() => import('@/components/editor/RichTextEditor'), {
+    ssr: false,
+    loading: () => <div className="h-[500px] w-full bg-muted animate-pulse rounded-lg" />
+});
 
 const letterTypes = [
-    'Hierarchical',
-    'Cross-Structure',
-    'Staff',
-    'C-Staff',
-    'Head Office',
-    'Guest',
+    { id: 'HIERARCHICAL', label: 'Hierarchical' },
+    { id: 'CROSS_STRUCTURE', label: 'Cross-Structure' },
+    { id: 'STAFF', label: 'Staff' },
+    { id: 'C_STAFF', label: 'C-Staff' },
+    { id: 'HEAD_OFFICE', label: 'Head Office' },
+    { id: 'GUEST', label: 'Guest' },
 ];
 
 export default function CreateTemplatePage() {
     const router = useRouter();
     const [formData, setFormData] = useState({
         name: '',
-        letterType: 'Hierarchical',
+        letterType: 'HIERARCHICAL',
         content: '',
         isActive: true,
     });
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         if (!formData.name || !formData.content) {
@@ -31,30 +37,35 @@ export default function CreateTemplatePage() {
             return;
         }
 
-        // In real app, this would be an API call
-        console.log('Creating template:', formData);
-        alert('Template created successfully!');
-        router.push('/org/templates');
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/templates`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify(formData)
+            });
+
+            if (res.ok) {
+                alert('Template created successfully!');
+                router.push('/org/templates');
+            } else {
+                const err = await res.json();
+                alert(`Error: ${err.message}`);
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Failed to create template');
+        }
     };
 
     const insertPlaceholder = (placeholder: string) => {
-        const textarea = document.getElementById('template-content') as HTMLTextAreaElement;
-        if (textarea) {
-            const start = textarea.selectionStart;
-            const end = textarea.selectionEnd;
-            const text = formData.content;
-            const before = text.substring(0, start);
-            const after = text.substring(end);
-            const newContent = before + placeholder + after;
-
-            setFormData({ ...formData, content: newContent });
-
-            // Set cursor position after the inserted placeholder
-            setTimeout(() => {
-                textarea.selectionStart = textarea.selectionEnd = start + placeholder.length;
-                textarea.focus();
-            }, 0);
-        }
+        // For RichTextEditor, we'll just alert that they can type it for now, 
+        // or we could implement a more complex insertion if needed.
+        // But the user asked for the editor, which handles layout better.
+        setFormData(prev => ({ ...prev, content: prev.content + ` ${placeholder} ` }));
     };
 
     const placeholders = [
@@ -117,7 +128,7 @@ export default function CreateTemplatePage() {
                                 required
                             >
                                 {letterTypes.map((type) => (
-                                    <option key={type} value={type}>{type}</option>
+                                    <option key={type.id} value={type.id}>{type.label}</option>
                                 ))}
                             </select>
                         </div>
@@ -164,34 +175,10 @@ export default function CreateTemplatePage() {
                         Write your template content below. Use placeholders for dynamic content that will be filled in when creating a letter.
                     </p>
 
-                    <div className="border border-border rounded-lg p-6 bg-white">
-                        <textarea
-                            id="template-content"
-                            value={formData.content}
-                            onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                            placeholder="[Organization Letterhead]
-
-Date: [Date]
-Reference Number: [Reference Number]
-
-To: [Recipient Name]
-     [Recipient Position]
-     [Recipient Organization]
-
-Subject: [Subject]
-
-Dear [Recipient Name],
-
-[Your template content here...]
-
-Sincerely,
-
-[Sender Name]
-[Sender Position]
-[Organization Name]
-[Contact Information]"
-                            className="w-full h-[500px] outline-none resize-none font-mono text-sm"
-                            required
+                    <div className="bg-white border border-border rounded-lg overflow-hidden">
+                        <RichTextEditor
+                            content={formData.content}
+                            onChange={(html) => setFormData({ ...formData, content: html })}
                         />
                     </div>
 

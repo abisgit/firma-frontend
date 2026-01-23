@@ -1,16 +1,17 @@
 "use client";
 
 import { Building2, Plus, Search } from 'lucide-react';
+import Link from 'next/link';
 
 export default function OrganizationsPage() {
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <h2 className="text-xl font-bold text-primary">Organizations</h2>
-                <button className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-md font-medium hover:bg-secondary transition-colors">
+                <Link href="/admin/organizations/create" className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-md font-medium hover:bg-secondary transition-colors">
                     <Plus className="w-4 h-4" />
                     Add Organization
-                </button>
+                </Link>
             </div>
 
             <div className="bg-card rounded-xl border border-border p-4 flex gap-4">
@@ -56,8 +57,10 @@ export default function OrganizationsPage() {
                                         {org.status}
                                     </span>
                                 </td>
-                                <td className="px-6 py-4 text-sm text-accent font-medium cursor-pointer hover:underline">
-                                    Edit
+                                <td className="px-6 py-4 text-sm text-accent font-medium">
+                                    <Link href={`/admin/organizations/${org.code}/edit`} className="hover:underline">
+                                        Edit
+                                    </Link>
                                 </td>
                             </tr>
                         ))}

@@ -7,6 +7,7 @@ import { ArrowLeft, Printer, Download, Stamp as StampIcon, Save } from 'lucide-r
 import Link from 'next/link';
 import StampUploader from '@/components/stamps/StampUploader';
 import StampOverlay from '@/components/stamps/StampOverlay';
+import { QRCodeSVG } from 'qrcode.react';
 
 export default function LetterDetailPage() {
     const params = useParams();
@@ -17,12 +18,19 @@ export default function LetterDetailPage() {
     const [loading, setLoading] = useState(true);
     const [showStampModal, setShowStampModal] = useState(false);
     const letterRef = useRef<HTMLDivElement>(null);
+    const [verifyUrl, setVerifyUrl] = useState('');
 
     useEffect(() => {
         if (orgCode && year && seq) {
             fetchLetter();
         }
     }, [orgCode, year, seq]);
+
+    useEffect(() => {
+        if (typeof window !== 'undefined' && letter?.id) {
+            setVerifyUrl(`${window.location.origin}/verify/${letter.id}`);
+        }
+    }, [letter]);
 
     const fetchLetter = async () => {
         try {
@@ -121,10 +129,27 @@ export default function LetterDetailPage() {
             <div className="flex justify-center bg-gray-100 p-8 rounded-xl overflow-hidden">
                 <div
                     ref={letterRef}
-                    className="bg-white text-black shadow-lg w-[210mm] min-h-[297mm] p-[20mm] relative box-border mx-auto"
+                    className="bg-white text-black shadow-lg w-[210mm] min-h-[297mm] p-[20mm] relative box-border mx-auto flex flex-col pt-[20mm]"
                 >
                     {/* Letter Content */}
-                    <div dangerouslySetInnerHTML={{ __html: letter.content }} />
+                    <div
+                        className="flex-1 prose prose-sm max-w-none"
+                        dangerouslySetInnerHTML={{
+                            __html: letter.content && !/<[a-z][\s\S]*>/i.test(letter.content)
+                                ? letter.content.split('\n').map((line: string) => `<p>${line.trim() === '' ? '<br>' : line}</p>`).join('')
+                                : letter.content
+                        }}
+                    />
+
+                    {/* QR Code (Bottom Right) */}
+                    <div className="absolute bottom-[20mm] right-[20mm] text-center flex flex-col items-center gap-1 opacity-80">
+                        {verifyUrl && (
+                            <>
+                                <QRCodeSVG value={verifyUrl} size={80} level="H" />
+                                <p className="text-[8px] font-mono text-gray-400 mt-1 uppercase tracking-tighter">Document Authenticity Verified</p>
+                            </>
+                        )}
+                    </div>
 
                     {/* Stamp Overlay */}
                     {letter.stamp && (

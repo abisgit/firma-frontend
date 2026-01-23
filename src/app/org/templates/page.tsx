@@ -57,9 +57,31 @@ const mockTemplates = [
 ];
 
 export default function TemplatesPage() {
-    const [templates, setTemplates] = useState(mockTemplates);
+    const [templates, setTemplates] = useState<any[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [filterType, setFilterType] = useState('all');
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchTemplates();
+    }, []);
+
+    const fetchTemplates = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/templates`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setTemplates(data);
+            }
+        } catch (err) {
+            console.error('Failed to fetch templates', err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const filteredTemplates = templates.filter(template => {
         const matchesSearch = template.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -67,17 +89,43 @@ export default function TemplatesPage() {
         return matchesSearch && matchesType;
     });
 
-    const handleDelete = (id: string) => {
+    const handleDelete = async (id: string) => {
         if (confirm('Are you sure you want to delete this template?')) {
-            setTemplates(templates.filter(t => t.id !== id));
-            alert('Template deleted successfully');
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/templates/${id}`, {
+                    method: 'DELETE',
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    setTemplates(templates.filter(t => t.id !== id));
+                    alert('Template deleted successfully');
+                }
+            } catch (err) {
+                console.error(err);
+            }
         }
     };
 
-    const handleToggleActive = (id: string) => {
-        setTemplates(templates.map(t =>
-            t.id === id ? { ...t, isActive: !t.isActive } : t
-        ));
+    const handleToggleActive = async (id: string, currentStatus: boolean) => {
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/templates/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({ isActive: !currentStatus })
+            });
+            if (res.ok) {
+                setTemplates(templates.map(t =>
+                    t.id === id ? { ...t, isActive: !currentStatus } : t
+                ));
+            }
+        } catch (err) {
+            console.error(err);
+        }
     };
 
     return (
@@ -116,12 +164,12 @@ export default function TemplatesPage() {
                         className="px-4 py-2 border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary"
                     >
                         <option value="all">All Types</option>
-                        <option value="Hierarchical">Hierarchical</option>
-                        <option value="Cross-Structure">Cross-Structure</option>
-                        <option value="Staff">Staff</option>
-                        <option value="C-Staff">C-Staff</option>
-                        <option value="Head Office">Head Office</option>
-                        <option value="Guest">Guest</option>
+                        <option value="HIERARCHICAL">Hierarchical</option>
+                        <option value="CROSS_STRUCTURE">Cross-Structure</option>
+                        <option value="STAFF">Staff</option>
+                        <option value="C_STAFF">C-Staff</option>
+                        <option value="HEAD_OFFICE">Head Office</option>
+                        <option value="GUEST">Guest</option>
                     </select>
                 </div>
             </div>
@@ -140,10 +188,10 @@ export default function TemplatesPage() {
                                 </div>
                                 <div className="flex gap-2">
                                     <button
-                                        onClick={() => handleToggleActive(template.id)}
+                                        onClick={() => handleToggleActive(template.id, template.isActive)}
                                         className={`px-2 py-1 rounded text-xs font-medium ${template.isActive
-                                                ? 'bg-emerald-100 text-emerald-800'
-                                                : 'bg-slate-100 text-slate-600'
+                                            ? 'bg-emerald-100 text-emerald-800'
+                                            : 'bg-slate-100 text-slate-600'
                                             }`}
                                     >
                                         {template.isActive ? 'Active' : 'Inactive'}

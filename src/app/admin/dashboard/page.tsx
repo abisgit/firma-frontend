@@ -1,10 +1,11 @@
 "use client";
 
 import { Building2, Users, FileCheck, Shield } from 'lucide-react';
+import Link from 'next/link';
 
 const stats = [
-    { label: 'Total Organizations', value: '24', icon: Building2, color: 'text-blue-600', bg: 'bg-blue-100' },
-    { label: 'Active Users', value: '1,240', icon: Users, color: 'text-emerald-600', bg: 'bg-emerald-100' },
+    { label: 'Total Organizations', value: '24', icon: Building2, color: 'text-blue-600', bg: 'bg-blue-100', href: '/admin/organizations' },
+    { label: 'Active Users', value: '1,240', icon: Users, color: 'text-emerald-600', bg: 'bg-emerald-100', href: '/admin/users' },
     { label: 'Documents Processed', value: '15,890', icon: FileCheck, color: 'text-purple-600', bg: 'bg-purple-100' },
     { label: 'System Health', value: '100%', icon: Shield, color: 'text-emerald-600', bg: 'bg-emerald-100' },
 ];
@@ -14,15 +15,27 @@ export default function AdminDashboardPage() {
         <div className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {stats.map((stat) => (
-                    <div key={stat.label} className="bg-card p-6 rounded-xl border border-border flex items-center gap-4">
-                        <div className={`p-3 rounded-lg ${stat.bg}`}>
-                            <stat.icon className={`w-6 h-6 ${stat.color}`} />
+                    stat.href ? (
+                        <Link key={stat.label} href={stat.href} className="bg-card p-6 rounded-xl border border-border flex items-center gap-4 hover:shadow-md transition-shadow cursor-pointer block">
+                            <div className={`p-3 rounded-lg ${stat.bg}`}>
+                                <stat.icon className={`w-6 h-6 ${stat.color}`} />
+                            </div>
+                            <div>
+                                <p className="text-sm text-muted-foreground">{stat.label}</p>
+                                <h3 className="text-2xl font-bold text-foreground">{stat.value}</h3>
+                            </div>
+                        </Link>
+                    ) : (
+                        <div key={stat.label} className="bg-card p-6 rounded-xl border border-border flex items-center gap-4">
+                            <div className={`p-3 rounded-lg ${stat.bg}`}>
+                                <stat.icon className={`w-6 h-6 ${stat.color}`} />
+                            </div>
+                            <div>
+                                <p className="text-sm text-muted-foreground">{stat.label}</p>
+                                <h3 className="text-2xl font-bold text-foreground">{stat.value}</h3>
+                            </div>
                         </div>
-                        <div>
-                            <p className="text-sm text-muted-foreground">{stat.label}</p>
-                            <h3 className="text-2xl font-bold text-foreground">{stat.value}</h3>
-                        </div>
-                    </div>
+                    )
                 ))}
             </div>
 
