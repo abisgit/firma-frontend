@@ -56,6 +56,8 @@ const mockTemplates = [
     },
 ];
 
+import api from '@/lib/api';
+
 export default function TemplatesPage() {
     const [templates, setTemplates] = useState<any[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
@@ -68,14 +70,8 @@ export default function TemplatesPage() {
 
     const fetchTemplates = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/templates`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            if (res.ok) {
-                const data = await res.json();
-                setTemplates(data);
-            }
+            const res = await api.get('/templates');
+            setTemplates(res.data);
         } catch (err) {
             console.error('Failed to fetch templates', err);
         } finally {
@@ -92,33 +88,22 @@ export default function TemplatesPage() {
     const handleDelete = async (id: string) => {
         if (confirm('Are you sure you want to delete this template?')) {
             try {
-                const token = localStorage.getItem('token');
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/templates/${id}`, {
-                    method: 'DELETE',
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                if (res.ok) {
+                const res = await api.delete(`/templates/${id}`);
+                if (res.status === 200) {
                     setTemplates(templates.filter(t => t.id !== id));
                     alert('Template deleted successfully');
                 }
             } catch (err) {
                 console.error(err);
+                alert('Failed to delete template');
             }
         }
     };
 
     const handleToggleActive = async (id: string, currentStatus: boolean) => {
         try {
-            const token = localStorage.getItem('token');
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/templates/${id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`
-                },
-                body: JSON.stringify({ isActive: !currentStatus })
-            });
-            if (res.ok) {
+            const res = await api.put(`/templates/${id}`, { isActive: !currentStatus });
+            if (res.status === 200) {
                 setTemplates(templates.map(t =>
                     t.id === id ? { ...t, isActive: !currentStatus } : t
                 ));

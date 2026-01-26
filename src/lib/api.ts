@@ -1,7 +1,12 @@
 import axios from 'axios';
 
+const getBaseURL = () => {
+    const url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+    return url.endsWith('/') ? url.slice(0, -1) : url;
+};
+
 const api = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
+    baseURL: getBaseURL(),
 });
 
 api.interceptors.request.use((config) => {

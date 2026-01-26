@@ -1,10 +1,22 @@
+"use client";
+
 import Sidebar from '@/components/Sidebar';
+import { useEffect, useState } from 'react';
 
 export default function OrgLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
+    const [user, setUser] = useState<any>(null);
+
+    useEffect(() => {
+        const userData = localStorage.getItem('user');
+        if (userData) {
+            setUser(JSON.parse(userData));
+        }
+    }, []);
+
     return (
         <div className="flex min-h-screen bg-muted">
             <Sidebar role="org" />
@@ -16,8 +28,8 @@ export default function OrgLayout({
                     </div>
                     <div className="flex items-center gap-4">
                         <div className="text-right">
-                            <p className="text-sm font-medium">User Name</p>
-                            <p className="text-xs text-muted-foreground">Ministry of Finance</p>
+                            <p className="text-sm font-medium">{user?.fullName || 'User Name'}</p>
+                            <p className="text-xs text-muted-foreground">{user?.organization?.name || 'Ministry of Finance'}</p>
                         </div>
                     </div>
                 </header>

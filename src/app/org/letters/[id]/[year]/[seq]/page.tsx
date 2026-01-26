@@ -9,6 +9,8 @@ import StampUploader from '@/components/stamps/StampUploader';
 import StampOverlay from '@/components/stamps/StampOverlay';
 import { QRCodeSVG } from 'qrcode.react';
 
+import api from '@/lib/api';
+
 export default function LetterDetailPage() {
     const params = useParams();
     // Use params.id as orgCode because the folder is named [id] but reused for OrgCode context here
@@ -34,18 +36,10 @@ export default function LetterDetailPage() {
 
     const fetchLetter = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/letters/${orgCode}/${year}/${seq}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            if (res.ok) {
-                const data = await res.json();
-                setLetter(data);
-            } else {
-                console.error('Failed to fetch letter');
-            }
+            const res = await api.get(`/letters/${orgCode}/${year}/${seq}`);
+            setLetter(res.data);
         } catch (err) {
-            console.error(err);
+            console.error('Failed to fetch letter', err);
         } finally {
             setLoading(false);
         }
@@ -75,15 +69,7 @@ export default function LetterDetailPage() {
 
     const saveStampPosition = async (stampId: number, x: number, y: number) => {
         try {
-            const token = localStorage.getItem('token');
-            await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/letters/${letter.id}/stamp`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`
-                },
-                body: JSON.stringify({ stampId, stampX: x, stampY: y })
-            });
+            await api.put(`/letters/${letter.id}/stamp`, { stampId, stampX: x, stampY: y });
         } catch (err) {
             console.error('Failed to save stamp position', err);
         }

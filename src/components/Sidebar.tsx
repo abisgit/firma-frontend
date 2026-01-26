@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -10,41 +11,69 @@ import {
     Users,
     LogOut,
     ShieldAlert,
-    FileStack
+    FileStack,
+    Briefcase
 } from 'lucide-react';
 import { clsx } from 'clsx';
+
+import { Role, Permission, hasPermission } from '@/lib/permissions';
 
 interface SidebarItem {
     name: string;
     href: string;
     icon: any;
+    permission?: Permission;
 }
 
 interface SidebarProps {
     role: 'admin' | 'org';
 }
 
+import { useLanguage } from '@/lib/LanguageContext';
+import { Languages } from 'lucide-react';
+
 export default function Sidebar({ role }: SidebarProps) {
     const pathname = usePathname();
+    const { t, language, setLanguage } = useLanguage();
+
+    // Get user role safely
+    const [userRole, setUserRole] = useState<Role>('OFFICER');
+
+    useEffect(() => {
+        const userData = localStorage.getItem('user');
+        if (userData) {
+            setUserRole(JSON.parse(userData).role);
+        }
+    }, []);
 
     const adminItems: SidebarItem[] = [
-        { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
-        { name: 'Organizations', href: '/admin/organizations', icon: Building2 },
-        { name: 'User Management', href: '/admin/users', icon: Users },
+        { name: t('dashboard'), href: '/admin/dashboard', icon: LayoutDashboard },
+        { name: 'Organizations', href: '/admin/organizations', icon: Building2, permission: 'manage_organizations' },
+        { name: 'User Management', href: '/admin/users', icon: Users, permission: 'manage_employees' },
     ];
 
     const orgItems: SidebarItem[] = [
-        { name: 'Dashboard', href: '/org/dashboard', icon: LayoutDashboard },
-        { name: 'Letters', href: '/org/letters', icon: FileText },
-        { name: 'Templates', href: '/org/templates', icon: FileStack },
-        { name: 'Reports', href: '/org/reports', icon: GitPullRequest },
+        { name: t('dashboard'), href: '/org/dashboard', icon: LayoutDashboard },
+        { name: t('letters'), href: '/org/letters', icon: FileText, permission: 'view_letters' },
+        { name: t('templates'), href: '/org/templates', icon: FileStack, permission: 'view_templates' },
+        { name: t('reports'), href: '/org/reports', icon: GitPullRequest, permission: 'view_reports' },
+        { name: t('hr_management'), href: '/org/hr', icon: Briefcase, permission: 'view_hr' },
     ];
 
-    const items = role === 'admin' ? adminItems : orgItems;
+    const rawItems = role === 'admin' ? adminItems : orgItems;
+
+    // Filter items based on permissions
+    const items = rawItems.filter(item =>
+        !item.permission || hasPermission(userRole, item.permission)
+    );
 
     const handleLogout = () => {
         localStorage.clear();
         window.location.href = '/login';
+    };
+
+    const toggleLanguage = () => {
+        setLanguage(language === 'en' ? 'am' : 'en');
     };
 
     return (
@@ -75,13 +104,20 @@ export default function Sidebar({ role }: SidebarProps) {
                 })}
             </nav>
 
-            <div className="p-4 border-t border-white/10">
+            <div className="p-4 border-t border-white/10 space-y-1">
+                <button
+                    onClick={toggleLanguage}
+                    className="flex items-center gap-3 px-4 py-3 w-full text-white/70 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                >
+                    <Languages className="w-5 h-5" />
+                    {language === 'en' ? 'አማርኛ' : 'English'}
+                </button>
                 <button
                     onClick={handleLogout}
                     className="flex items-center gap-3 px-4 py-3 w-full text-white/70 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
                 >
                     <LogOut className="w-5 h-5" />
-                    Sign Out
+                    {t('sign_out')}
                 </button>
             </div>
         </div>
