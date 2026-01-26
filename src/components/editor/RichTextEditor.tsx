@@ -17,7 +17,7 @@ import {
     AlignLeft, AlignCenter, AlignRight,
     List, ListOrdered, Image as ImageIcon,
     Table as TableIcon, Heading1, Heading2,
-    Undo, Redo, Link as LinkIcon
+    Undo, Redo, Link as LinkIcon, Columns2, Columns3
 } from 'lucide-react';
 
 interface RichTextEditorProps {
@@ -187,6 +187,22 @@ const MenuBar = ({ editor }: { editor: any }) => {
                 title="Add Table"
             >
                 <TableIcon className="w-4 h-4" />
+            </button>
+            <button
+                type="button"
+                onClick={() => editor.chain().focus().insertTable({ rows: 1, cols: 2 }).run()}
+                className="p-2 rounded hover:bg-muted"
+                title="2 Columns"
+            >
+                <Columns2 className="w-4 h-4" />
+            </button>
+            <button
+                type="button"
+                onClick={() => editor.chain().focus().insertTable({ rows: 1, cols: 3 }).run()}
+                className="p-2 rounded hover:bg-muted"
+                title="3 Columns"
+            >
+                <Columns3 className="w-4 h-4" />
             </button>
 
             <div className="flex-1" />

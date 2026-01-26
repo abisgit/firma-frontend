@@ -11,21 +11,28 @@ interface Stamp {
 interface StampUploaderProps {
     onSelect: (stamp: Stamp) => void;
     onClose: () => void;
+    userId?: string; // Optional: specify user to upload for
 }
 
-export default function StampUploader({ onSelect, onClose }: StampUploaderProps) {
+export default function StampUploader({ onSelect, onClose, userId }: StampUploaderProps) {
     const [stamps, setStamps] = useState<Stamp[]>([]);
     const [uploading, setUploading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         fetchStamps();
-    }, []);
+    }, [userId]);
 
     const fetchStamps = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/stamps`, {
+            // If userId is provided, we might need a new endpoint OR the backend should handle it
+            // For now, let's assume we fetch the target user's stamps if userId is provided
+            const url = userId
+                ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/stamps/user/${userId}`
+                : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/stamps`;
+
+            const res = await fetch(url, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.ok) {
@@ -44,6 +51,9 @@ export default function StampUploader({ onSelect, onClose }: StampUploaderProps)
         setUploading(true);
         const formData = new FormData();
         formData.append('image', file);
+        if (userId) {
+            formData.append('userId', userId);
+        }
 
         try {
             const token = localStorage.getItem('token');
@@ -55,7 +65,8 @@ export default function StampUploader({ onSelect, onClose }: StampUploaderProps)
             if (res.ok) {
                 await fetchStamps();
             } else {
-                alert('Failed to upload');
+                const errData = await res.json();
+                alert(`Failed to upload: ${errData.message}`);
             }
         } catch (err) {
             console.error(err);

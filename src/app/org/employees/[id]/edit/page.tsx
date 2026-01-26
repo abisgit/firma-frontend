@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Save } from 'lucide-react';
+import { ArrowLeft, Save, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { getEmployee, updateEmployee } from '@/lib/api';
+import StampUploader from '@/components/stamps/StampUploader';
 
 export default function EditEmployeePage() {
     const params = useParams();
@@ -13,13 +14,13 @@ export default function EditEmployeePage() {
 
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [showStampUploader, setShowStampUploader] = useState(false);
     const [form, setForm] = useState({
         fullName: '',
         email: '',
         position: '',
         phoneNumber: '',
         role: 'OFFICER',
-        // Note: Password update usually separate
     });
 
     useEffect(() => {
@@ -143,6 +144,38 @@ export default function EditEmployeePage() {
                     </div>
                 </form>
             </div>
+
+            {/* Stamp Management Section */}
+            {(typeof window !== 'undefined' && (JSON.parse(localStorage.getItem('user') || '{}').role === 'ORG_ADMIN' || JSON.parse(localStorage.getItem('user') || '{}').role === 'SUPER_ADMIN')) && (
+                <div className="bg-card rounded-xl border border-border p-6 max-w-2xl">
+                    <h3 className="text-lg font-bold mb-4">Digital Stamp Management</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                        Upload or manage the digital stamp for this employee. Only admins can manage stamps.
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div
+                            className="border-2 border-dashed border-border rounded-lg p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-muted/30 transition-colors"
+                            onClick={() => setShowStampUploader(true)}
+                        >
+                            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-2">
+                                <Plus className="w-6 h-6" />
+                            </div>
+                            <span className="font-medium">Manage Stamps</span>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showStampUploader && (
+                <StampUploader
+                    userId={id as string}
+                    onSelect={(stamp) => {
+                        console.log('Stamp selected:', stamp);
+                        setShowStampUploader(false);
+                    }}
+                    onClose={() => setShowStampUploader(false)}
+                />
+            )}
         </div>
     );
 }

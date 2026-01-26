@@ -5,7 +5,6 @@ import { useEffect, useState, useRef } from 'react';
 import { ArrowLeft, Save, Send, Copy, Printer, FileText, Search, X, Building2, Image as ImageIcon, Stamp as StampIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import StampUploader from '@/components/stamps/StampUploader';
 import StampOverlay from '@/components/stamps/StampOverlay';
 import dynamic from 'next/dynamic';
 
@@ -14,7 +13,7 @@ const RichTextEditor = dynamic(() => import('@/components/editor/RichTextEditor'
     loading: () => <div className="h-[500px] w-full bg-muted animate-pulse rounded-lg" />
 });
 
-import { getEmployees, getOrganizations } from '@/lib/api';
+import api, { getEmployees, getOrganizations } from '@/lib/api';
 
 const letterTypes = [
     { id: 'HIERARCHICAL', label: 'Hierarchical' },
@@ -39,8 +38,8 @@ export default function CreateLetterPage() {
     const [orgSearchQuery, setOrgSearchQuery] = useState('');
 
     // Stamp state
-    const [showStampModal, setShowStampModal] = useState(false);
     const [selectedStamp, setSelectedStamp] = useState<any>(null);
+    const [myStamps, setMyStamps] = useState<any[]>([]);
     const [stampPos, setStampPos] = useState({ x: 0.8, y: 0.8 });
     const contentRef = useRef<HTMLDivElement>(null);
 
@@ -57,7 +56,23 @@ export default function CreateLetterPage() {
         fetchTemplates();
         fetchEmployeesList();
         fetchOrganizationsList();
+        fetchMyStamps();
     }, []);
+
+    const fetchMyStamps = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/stamps`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setMyStamps(data);
+            }
+        } catch (err) {
+            console.error('Failed to fetch my stamps', err);
+        }
+    };
 
     const fetchOrganizationsList = async () => {
         try {
@@ -79,14 +94,8 @@ export default function CreateLetterPage() {
 
     const fetchTemplates = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/templates?active=true`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            if (res.ok) {
-                const data = await res.json();
-                setTemplates(data);
-            }
+            const res = await api.get('/templates?active=true');
+            setTemplates(res.data);
         } catch (err) {
             console.error('Failed to fetch templates', err);
         }
@@ -96,28 +105,18 @@ export default function CreateLetterPage() {
         setSelectedTemplate(templateId);
         setShowTemplates(false);
         try {
-            const token = localStorage.getItem('token');
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/templates/${templateId}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            if (res.ok) {
-                const template = await res.json();
-                setFormData(prev => ({
-                    ...prev,
-                    subject: template.name,
-                    content: template.content,
-                    letterType: template.letterType
-                }));
-                setActiveTab(template.letterType);
-            }
+            const res = await api.get(`/templates/${templateId}`);
+            const template = res.data;
+            setFormData(prev => ({
+                ...prev,
+                subject: template.name,
+                content: template.content,
+                letterType: template.letterType
+            }));
+            setActiveTab(template.letterType);
         } catch (err) {
             console.error('Failed to fetch template details', err);
         }
-    };
-
-    const handleStampSelect = (stamp: any) => {
-        setSelectedStamp(stamp);
-        setShowStampModal(false);
     };
 
     const handleSaveDraft = async () => {
@@ -252,23 +251,21 @@ export default function CreateLetterPage() {
                             />
                         </div>
 
-                        {(formData.letterType === 'STAFF' || formData.letterType === 'C_STAFF') && (
-                            <div>
-                                <label className="block text-sm font-medium text-foreground mb-2">Recipient Employee</label>
-                                <select
-                                    value={formData.recipientUserId}
-                                    onChange={(e) => setFormData({ ...formData, recipientUserId: e.target.value })}
-                                    className="w-full px-4 py-2 border border-input rounded-md focus:ring-2 focus:ring-primary outline-none"
-                                >
-                                    <option value="">Select Employee...</option>
-                                    {employees.map((emp: any) => (
-                                        <option key={emp.id} value={emp.id}>
-                                            {emp.fullName} ({emp.position || 'No Position'})
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                        )}
+                        <div>
+                            <label className="block text-sm font-medium text-foreground mb-2">Recipient User (Internal)</label>
+                            <select
+                                value={formData.recipientUserId}
+                                onChange={(e) => setFormData({ ...formData, recipientUserId: e.target.value })}
+                                className="w-full px-4 py-2 border border-input rounded-md focus:ring-2 focus:ring-primary outline-none"
+                            >
+                                <option value="">Select Employee...</option>
+                                {employees.map((emp: any) => (
+                                    <option key={emp.id} value={emp.id}>
+                                        {emp.fullName} ({emp.position || 'No Position'})
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
 
                         <div>
                             <label className="block text-sm font-medium text-foreground mb-2">Subject</label>
@@ -297,13 +294,21 @@ export default function CreateLetterPage() {
                         <div className="flex justify-between items-center mb-2">
                             <label className="block text-sm font-medium text-foreground">Letter Composition</label>
                             <div className="flex gap-4">
-                                <button
-                                    onClick={() => setShowStampModal(true)}
-                                    className="flex items-center gap-2 text-sm text-primary hover:underline"
-                                >
-                                    <StampIcon className="w-4 h-4" />
-                                    {selectedStamp ? 'Change Stamp' : 'Add Stamp'}
-                                </button>
+                                {myStamps.length > 0 && (
+                                    <button
+                                        onClick={() => {
+                                            if (selectedStamp) {
+                                                setSelectedStamp(null);
+                                            } else {
+                                                setSelectedStamp(myStamps[0]);
+                                            }
+                                        }}
+                                        className="flex items-center gap-2 text-sm text-primary hover:underline"
+                                    >
+                                        <StampIcon className="w-4 h-4" />
+                                        {selectedStamp ? 'Remove Stamp' : 'Add Stamp'}
+                                    </button>
+                                )}
                             </div>
                         </div>
 
@@ -369,13 +374,6 @@ export default function CreateLetterPage() {
                 </div>
             </div>
 
-            {/* Stamp Modal */}
-            {showStampModal && (
-                <StampUploader
-                    onSelect={handleStampSelect}
-                    onClose={() => setShowStampModal(false)}
-                />
-            )}
             {/* Organization Search Modal */}
             {showSearchModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
