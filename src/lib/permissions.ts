@@ -25,7 +25,7 @@ export const RolePermissions: Record<Role, Permission[]> = {
     ORG_ADMIN: [
         'view_dashboard', 'view_letters', 'create_letters', 'edit_letters',
         'view_templates', 'create_templates', 'edit_templates',
-        'view_hr', 'manage_employees', 'view_reports', 'manage_stamps'
+        'view_hr', 'manage_employees', 'view_reports', 'manage_stamps', 'manage_organizations'
     ],
     HR: [
         'view_dashboard', 'view_hr', 'manage_employees', 'view_reports'

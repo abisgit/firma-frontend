@@ -15,7 +15,9 @@ import {
     Briefcase,
     ShieldCheck,
     MessageSquare,
-    Monitor
+    Monitor,
+    ClipboardList,
+    CreditCard
 } from 'lucide-react';
 import { clsx } from 'clsx';
 
@@ -53,6 +55,8 @@ export default function Sidebar({ role }: SidebarProps) {
         { name: t('dashboard'), href: '/admin/dashboard', icon: LayoutDashboard },
         { name: 'Organizations', href: '/admin/organizations', icon: Building2, permission: 'manage_organizations' },
         { name: 'User Management', href: '/admin/users', icon: Users, permission: 'manage_employees' },
+        { name: 'Tenant Requests', href: '/admin/tenants', icon: ClipboardList, permission: 'manage_organizations' },
+        { name: 'Billing & Tiers', href: '/admin/billing', icon: CreditCard, permission: 'manage_organizations' },
         { name: 'Landing Page', href: '/admin/marketing', icon: Monitor, permission: 'manage_organizations' },
     ];
 
@@ -63,6 +67,7 @@ export default function Sidebar({ role }: SidebarProps) {
         { name: t('templates'), href: '/org/templates', icon: FileStack, permission: 'view_templates' },
         { name: t('reports'), href: '/org/reports', icon: GitPullRequest, permission: 'view_reports' },
         { name: t('hr_management'), href: '/org/hr', icon: Briefcase, permission: 'view_hr' },
+        { name: 'Billing', href: '/org/billing', icon: CreditCard, permission: 'manage_organizations' },
         { name: t('roles_permissions'), href: '/org/roles', icon: ShieldCheck, permission: 'manage_organizations' },
     ];
 

@@ -32,7 +32,7 @@ export default function ApplicantLayout({ children }: { children: React.ReactNod
     if (!user) return null;
 
     const navItems = [
-        { label: 'My Dashboard', href: '/applicant/dashboard', icon: LayoutDashboard },
+        { label: 'Personal Dashboard', href: '/applicant/dashboard', icon: LayoutDashboard },
         { label: 'Submit Application', href: '/applicant/apply', icon: FileText },
         { label: 'Messages', href: '/applicant/messages', icon: MessageSquare },
     ];
@@ -47,7 +47,7 @@ export default function ApplicantLayout({ children }: { children: React.ReactNod
                     </div>
                     <div>
                         <h1 className="text-xl font-black text-primary tracking-tighter">FIRMA</h1>
-                        <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Applicant Portal</p>
+                        <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Personal Portal</p>
                     </div>
                 </div>
 
@@ -57,8 +57,8 @@ export default function ApplicantLayout({ children }: { children: React.ReactNod
                             key={item.href}
                             href={item.href}
                             className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${pathname === item.href
-                                    ? 'bg-primary text-white shadow-lg shadow-primary/20'
-                                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                                ? 'bg-primary text-white shadow-lg shadow-primary/20'
+                                : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                                 }`}
                         >
                             <item.icon className="w-4 h-4" />

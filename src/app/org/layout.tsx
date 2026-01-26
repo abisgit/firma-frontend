@@ -31,7 +31,7 @@ export default function OrgLayout({
                     <div className="flex items-center gap-4">
                         <div className="text-right">
                             <p className="text-sm font-medium">{user?.fullName || 'User Name'}</p>
-                            <p className="text-xs text-muted-foreground">{user?.organization?.name || 'Ministry of Finance'}</p>
+                            <p className="text-xs text-muted-foreground">{user?.organization?.name || 'Organization Name'}</p>
                         </div>
                     </div>
                 </header>

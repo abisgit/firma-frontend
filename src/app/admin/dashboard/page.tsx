@@ -1,12 +1,12 @@
 "use client";
 
-import { Building2, Users, FileCheck, Shield } from 'lucide-react';
+import { Building2, Users, FileCheck, Shield, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 
 const stats = [
     { label: 'Total Organizations', value: '24', icon: Building2, color: 'text-blue-600', bg: 'bg-blue-100', href: '/admin/organizations' },
+    { label: 'Total Revenue', value: '$2.4M', icon: TrendingUp, color: 'text-emerald-500', bg: 'bg-emerald-50', href: '/admin/billing' },
     { label: 'Active Users', value: '1,240', icon: Users, color: 'text-emerald-600', bg: 'bg-emerald-100', href: '/admin/users' },
-    { label: 'Documents Processed', value: '15,890', icon: FileCheck, color: 'text-purple-600', bg: 'bg-purple-100' },
     { label: 'System Health', value: '100%', icon: Shield, color: 'text-emerald-600', bg: 'bg-emerald-100' },
 ];
 

@@ -5,7 +5,7 @@ import { getLetters } from '@/lib/api';
 import { FileText, Clock, CheckCircle, XCircle, ChevronRight, Search } from 'lucide-react';
 import Link from 'next/link';
 
-export default function ApplicantDashboard() {
+export default function PersonalDashboard() {
     const [applications, setApplications] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -48,8 +48,8 @@ export default function ApplicantDashboard() {
     return (
         <div className="space-y-8">
             <header>
-                <h2 className="text-3xl font-black text-primary tracking-tight">MY APPLICATIONS</h2>
-                <p className="text-muted-foreground">Track the status of your official document submissions</p>
+                <h2 className="text-3xl font-black text-primary tracking-tight uppercase">Personal Dashboard</h2>
+                <p className="text-muted-foreground">Track your official correspondence and verifiable documents</p>
             </header>
 
             {/* Quick Stats */}

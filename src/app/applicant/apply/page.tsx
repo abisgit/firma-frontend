@@ -53,8 +53,8 @@ export default function ApplyPage() {
     return (
         <div className="max-w-4xl mx-auto space-y-8">
             <header>
-                <h2 className="text-3xl font-black text-primary tracking-tight uppercase">SUBMIT NEW APPLICATION</h2>
-                <p className="text-muted-foreground">Apply to a government organization by filling out the form below.</p>
+                <h2 className="text-3xl font-black text-primary tracking-tight uppercase">New Correspondence</h2>
+                <p className="text-muted-foreground">Submit an official request or letter to a government organization.</p>
             </header>
 
             <form onSubmit={handleSubmit} className="space-y-6 bg-card p-8 rounded-2xl border border-border shadow-md">
@@ -93,7 +93,7 @@ export default function ApplyPage() {
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-sm font-black uppercase tracking-widest text-muted-foreground">Subject of Application</label>
+                        <label className="text-sm font-black uppercase tracking-widest text-muted-foreground">Subject of Correspondence</label>
                         <input
                             type="text"
                             value={subject}
@@ -105,7 +105,7 @@ export default function ApplyPage() {
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-sm font-black uppercase tracking-widest text-muted-foreground">Application Content / Details</label>
+                        <label className="text-sm font-black uppercase tracking-widest text-muted-foreground">Correspondence Details</label>
                         <textarea
                             value={content}
                             onChange={(e) => setContent(e.target.value)}
@@ -131,7 +131,7 @@ export default function ApplyPage() {
                         className="flex items-center gap-3 px-8 py-4 bg-primary text-white font-black rounded-xl hover:bg-secondary transition-all shadow-lg shadow-primary/20 active:scale-95 disabled:opacity-50"
                     >
                         <Send className="w-5 h-5" />
-                        SUBMIT APPLICATION
+                        SUBMIT REQUEST
                     </button>
                 </div>
             </form>

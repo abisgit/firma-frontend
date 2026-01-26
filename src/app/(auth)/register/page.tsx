@@ -49,7 +49,7 @@ export default function RegisterPage() {
                         <UserPlus className="w-8 h-8 text-primary" />
                     </div>
                     <h1 className="text-3xl font-black text-primary tracking-tight text-center">JOIN FIRMA</h1>
-                    <p className="text-muted-foreground mt-2 text-center">External Applicant Portal Registration</p>
+                    <p className="text-muted-foreground mt-2 text-center">Personal Portal Registration</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -113,7 +113,7 @@ export default function RegisterPage() {
                         className={`w-full py-4 bg-gradient-to-r from-primary to-secondary text-white font-black rounded-xl hover:shadow-lg hover:shadow-primary/20 transition-all active:scale-[0.98] ${loading ? 'opacity-70 cursor-not-allowed' : ''
                             }`}
                     >
-                        {loading ? 'Creating Account...' : 'Create Applicant Account'}
+                        {loading ? 'Creating Account...' : 'Create Personal Account'}
                     </button>
 
                     <p className="text-[10px] text-center text-muted-foreground leading-tight px-4 mt-4">

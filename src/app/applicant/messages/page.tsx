@@ -5,7 +5,7 @@ import api from '@/lib/api';
 import { MessageSquare, Building2, Clock, Search, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 
-export default function ApplicantMessagesPage() {
+export default function PersonalMessagesPage() {
     const [messages, setMessages] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -33,8 +33,8 @@ export default function ApplicantMessagesPage() {
     return (
         <div className="space-y-6">
             <header>
-                <h2 className="text-3xl font-black text-primary tracking-tight">MY MESSAGES</h2>
-                <p className="text-muted-foreground">Correspondence with organizations regarding your applications</p>
+                <h2 className="text-3xl font-black text-primary tracking-tight uppercase">Messages</h2>
+                <p className="text-muted-foreground">Official correspondence regarding your requests</p>
             </header>
 
             <div className="bg-card rounded-2xl border border-border overflow-hidden shadow-sm">

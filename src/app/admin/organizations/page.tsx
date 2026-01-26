@@ -32,15 +32,16 @@ export default function OrganizationsPage() {
                             <th className="px-6 py-4 font-medium">Name</th>
                             <th className="px-6 py-4 font-medium">Code</th>
                             <th className="px-6 py-4 font-medium">Type</th>
+                            <th className="px-6 py-4 font-medium">Subscription</th>
                             <th className="px-6 py-4 font-medium">Status</th>
                             <th className="px-6 py-4 font-medium">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-border">
                         {[
-                            { name: 'Ministry of Finance', code: 'MOF', type: 'MINISTRY', status: 'Active' },
-                            { name: 'Ministry of Health', code: 'MOH', type: 'MINISTRY', status: 'Active' },
-                            { name: 'Central Intelligence Agency', code: 'CIA', type: 'AGENCY', status: 'Inactive' },
+                            { name: 'Ministry of Finance', code: 'MOF', type: 'MINISTRY', tier: 'NATIONAL', status: 'Active' },
+                            { name: 'Ministry of Health', code: 'MOH', type: 'MINISTRY', tier: 'CONSORTIUM', status: 'Active' },
+                            { name: 'Commercial Bank', code: 'CBE', type: 'SOE', tier: 'STARTER', status: 'Active' },
                         ].map((org) => (
                             <tr key={org.code} className="hover:bg-muted/30">
                                 <td className="px-6 py-4 flex items-center gap-3">
@@ -51,6 +52,11 @@ export default function OrganizationsPage() {
                                 </td>
                                 <td className="px-6 py-4 text-sm text-muted-foreground">{org.code}</td>
                                 <td className="px-6 py-4 text-sm font-mono">{org.type}</td>
+                                <td className="px-6 py-4">
+                                    <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-blue-100 text-blue-800">
+                                        {org.tier}
+                                    </span>
+                                </td>
                                 <td className="px-6 py-4">
                                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${org.status === 'Active' ? 'bg-emerald-100 text-emerald-800' : 'bg-muted text-muted-foreground'
                                         }`}>
