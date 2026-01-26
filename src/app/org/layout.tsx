@@ -2,6 +2,7 @@
 
 import Sidebar from '@/components/Sidebar';
 import { useEffect, useState } from 'react';
+import { useLanguage } from '@/lib/LanguageContext';
 
 export default function OrgLayout({
     children,
@@ -9,6 +10,7 @@ export default function OrgLayout({
     children: React.ReactNode;
 }) {
     const [user, setUser] = useState<any>(null);
+    const { t } = useLanguage();
 
     useEffect(() => {
         const userData = localStorage.getItem('user');
@@ -23,8 +25,8 @@ export default function OrgLayout({
             <main className="flex-1 ml-64 p-8">
                 <header className="flex justify-between items-center mb-8">
                     <div>
-                        <h1 className="text-2xl font-bold text-primary">Organization Dashboard</h1>
-                        <p className="text-muted-foreground">Manage your documents and workflows</p>
+                        <h1 className="text-2xl font-bold text-primary">{t('org_dashboard_title')}</h1>
+                        <p className="text-muted-foreground">{t('org_dashboard_desc')}</p>
                     </div>
                     <div className="flex items-center gap-4">
                         <div className="text-right">

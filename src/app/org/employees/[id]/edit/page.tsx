@@ -123,7 +123,7 @@ export default function EditEmployeePage() {
                             >
                                 <option value="OFFICER">Officer</option>
                                 <option value="REVIEWER">Reviewer</option>
-                                <option value="APPROVER">Approver</option>
+                                <option value="HR">HR Manager</option>
                                 <option value="ORG_ADMIN">Admin</option>
                             </select>
                         </div>

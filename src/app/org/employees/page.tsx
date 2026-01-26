@@ -275,6 +275,20 @@ export default function EmployeesPage() {
                                 </select>
                             </div>
                             <div className="space-y-2">
+                                <label className="text-sm font-medium">Role</label>
+                                <select
+                                    className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                                    value={newEmployee.role}
+                                    onChange={(e) => setNewEmployee({ ...newEmployee, role: e.target.value })}
+                                    required
+                                >
+                                    <option value="OFFICER">Officer</option>
+                                    <option value="REVIEWER">Reviewer</option>
+                                    <option value="HR">HR Manager</option>
+                                    <option value="ORG_ADMIN">Admin</option>
+                                </select>
+                            </div>
+                            <div className="space-y-2">
                                 <label className="text-sm font-medium">Password</label>
                                 <input
                                     type="password"

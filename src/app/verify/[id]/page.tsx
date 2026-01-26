@@ -15,7 +15,8 @@ export default function PublicLetterVerification({ params }: { params: Promise<{
 
     const fetchLetter = async () => {
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/letters/public/${id}`);
+            const apiUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001').replace(/\/$/, '');
+            const res = await fetch(`${apiUrl}/letters/public/${id}`);
             if (res.ok) {
                 const data = await res.json();
                 setLetter(data);
@@ -149,7 +150,7 @@ export default function PublicLetterVerification({ params }: { params: Promise<{
                             <div className="flex justify-center pt-4">
                                 <div className="relative p-6 border-2 border-dashed border-emerald-200 rounded-2xl bg-emerald-50/30 group transition-all hover:bg-emerald-50">
                                     <div className="flex items-center gap-4">
-                                        <img src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}${letter.stamp.imageUrl}`} alt="Official Stamp" className="w-24 h-24 object-contain grayscale group-hover:grayscale-0 transition-all opacity-80" />
+                                        <img src={`${(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001').replace(/\/$/, '')}${letter.stamp.imageUrl}`} alt="Official Stamp" className="w-24 h-24 object-contain grayscale group-hover:grayscale-0 transition-all opacity-80" />
                                         <div>
                                             <p className="text-xs font-bold text-emerald-600 uppercase tracking-widest">Digitally Stamped</p>
                                             <p className="text-sm text-emerald-800 font-medium">{letter.createdBy.fullName}</p>

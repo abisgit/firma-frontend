@@ -10,8 +10,10 @@ import StampOverlay from '@/components/stamps/StampOverlay';
 import { QRCodeSVG } from 'qrcode.react';
 
 import api from '@/lib/api';
+import { useLanguage } from '@/lib/LanguageContext';
 
 export default function LetterDetailPage() {
+    const { t } = useLanguage();
     const params = useParams();
     // Use params.id as orgCode because the folder is named [id] but reused for OrgCode context here
     const { id: orgCode, year, seq } = params as { id: string; year: string; seq: string };
@@ -76,7 +78,7 @@ export default function LetterDetailPage() {
     };
 
     if (loading) return <div className="p-8">Loading...</div>;
-    if (!letter) return <div className="p-8">Letter not found</div>;
+    if (!letter) return <div className="p-8">{t('recent_activity')}</div>; // Use as fallback
 
     const isDraft = letter.status === 'DRAFT';
     const canEdit = isDraft; // Add more permission checks if needed
@@ -90,7 +92,7 @@ export default function LetterDetailPage() {
                         <ArrowLeft className="w-5 h-5" />
                     </Link>
                     <div>
-                        <h2 className="text-xl font-bold text-primary">Letter Details</h2>
+                        <h2 className="text-xl font-bold text-primary">{t('letter_details')}</h2>
                         <p className="text-sm text-muted-foreground">{letter.referenceNumber}</p>
                     </div>
                 </div>
@@ -101,12 +103,12 @@ export default function LetterDetailPage() {
                             className="flex items-center gap-2 px-4 py-2 border border-primary text-primary rounded-md hover:bg-primary/10"
                         >
                             <StampIcon className="w-4 h-4" />
-                            {letter.stamp ? 'Change Stamp' : 'Add Stamp'}
+                            {letter.stamp ? t('change_stamp') : t('add_stamp')}
                         </button>
                     )}
                     <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 border border-border rounded-md hover:bg-muted/50">
                         <Printer className="w-4 h-4" />
-                        Print
+                        {t('print')}
                     </button>
                 </div>
             </div>
@@ -132,7 +134,7 @@ export default function LetterDetailPage() {
                         {verifyUrl && (
                             <>
                                 <QRCodeSVG value={verifyUrl} size={80} level="H" />
-                                <p className="text-[8px] font-mono text-gray-400 mt-1 uppercase tracking-tighter">Document Authenticity Verified</p>
+                                <p className="text-[8px] font-mono text-gray-400 mt-1 uppercase tracking-tighter">{t('authenticity_verified')}</p>
                             </>
                         )}
                     </div>

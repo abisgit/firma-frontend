@@ -31,19 +31,24 @@ export default function StampOverlay({
         if (onPositionChange) onPositionChange(x, y);
     });
 
+    const apiUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001').replace(/\/$/, '');
+    const fullImageUrl = imageUrl.startsWith('http') ? imageUrl : `${apiUrl}${imageUrl}`;
+
     return (
         <img
             ref={imgRef}
-            src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}${imageUrl}`}
+            src={fullImageUrl}
             alt="Signature Stamp"
+            onError={(e) => {
+                console.error('Failed to load stamp image:', fullImageUrl);
+                // Optional: set a fallback image or state
+            }}
             className={`absolute max-w-[150px] max-h-[100px] object-contain z-10 transition-shadow ${editable ? 'cursor-move hover:drop-shadow-lg' : ''} ${isDragging ? 'opacity-80' : ''}`}
             style={{
                 left: `${(initialX || 0.8) * 100}%`,
                 top: `${(initialY || 0.8) * 100}%`,
-                // We might need to adjust for element size if we want X/Y to be center? 
-                // Currently X/Y is Top-Left corner percentage.
             }}
-            draggable={false} // Disable native drag
+            draggable={false}
         />
     );
 }

@@ -17,8 +17,10 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import api from '@/lib/api';
+import { useLanguage } from '@/lib/LanguageContext';
 
 export default function HRManagementPage() {
+    const { t } = useLanguage();
     const [employees, setEmployees] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -39,10 +41,10 @@ export default function HRManagementPage() {
     };
 
     const stats = [
-        { label: 'Total Employees', value: employees.length, icon: Users, color: 'text-blue-600', bg: 'bg-blue-100' },
-        { label: 'New Hires (Month)', value: '4', icon: UserPlus, color: 'text-emerald-600', bg: 'bg-emerald-100' },
-        { label: 'Pending Leaves', value: '12', icon: Clock, color: 'text-amber-600', bg: 'bg-amber-100' },
-        { label: 'Performance Reviews', value: '8', icon: Award, color: 'text-purple-600', bg: 'bg-purple-100' },
+        { label: t('total_employees'), value: employees.length, icon: Users, color: 'text-blue-600', bg: 'bg-blue-100' },
+        { label: t('new_hires'), value: '4', icon: UserPlus, color: 'text-emerald-600', bg: 'bg-emerald-100' },
+        { label: t('pending_leaves'), value: '12', icon: Clock, color: 'text-amber-600', bg: 'bg-amber-100' },
+        { label: t('performance_reviews'), value: '8', icon: Award, color: 'text-purple-600', bg: 'bg-purple-100' },
     ];
 
     const filteredEmployees = employees.filter(emp =>
@@ -55,8 +57,8 @@ export default function HRManagementPage() {
         <div className="space-y-8">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-primary tracking-tight">HR Management</h1>
-                    <p className="text-muted-foreground">Manage employee profiles, documents, and records</p>
+                    <h1 className="text-2xl font-bold text-primary tracking-tight">{t('hr_management')}</h1>
+                    <p className="text-muted-foreground">{t('hr_management_desc')}</p>
                 </div>
                 <div className="flex gap-3">
                     <button className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg hover:bg-muted transition-colors text-sm font-medium">
@@ -101,7 +103,7 @@ export default function HRManagementPage() {
                                     type="text"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    placeholder="Search employees by name, email, or position..."
+                                    placeholder={t('search_placeholder')}
                                     className="w-full pl-10 pr-4 py-2.5 bg-muted/30 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all text-sm"
                                 />
                             </div>
@@ -115,10 +117,10 @@ export default function HRManagementPage() {
                             <table className="w-full text-left">
                                 <thead className="text-xs font-bold text-muted-foreground uppercase tracking-widest border-b border-border pb-4">
                                     <tr>
-                                        <th className="px-4 py-3">Employee</th>
-                                        <th className="px-4 py-3">Position</th>
-                                        <th className="px-4 py-3">Department</th>
-                                        <th className="px-4 py-3">Status</th>
+                                        <th className="px-4 py-3">{t('employee')}</th>
+                                        <th className="px-4 py-3">{t('position')}</th>
+                                        <th className="px-4 py-3">{t('department')}</th>
+                                        <th className="px-4 py-3">{t('status')}</th>
                                         <th className="px-4 py-3 text-right">Action</th>
                                     </tr>
                                 </thead>

@@ -57,8 +57,10 @@ const mockTemplates = [
 ];
 
 import api from '@/lib/api';
+import { useLanguage } from '@/lib/LanguageContext';
 
 export default function TemplatesPage() {
+    const { t } = useLanguage();
     const [templates, setTemplates] = useState<any[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [filterType, setFilterType] = useState('all');
@@ -118,15 +120,15 @@ export default function TemplatesPage() {
             {/* Header */}
             <div className="flex justify-between items-center">
                 <div>
-                    <h2 className="text-xl font-bold text-primary">Letter Templates</h2>
-                    <p className="text-sm text-muted-foreground">Create and manage reusable letter templates</p>
+                    <h2 className="text-xl font-bold text-primary">{t('letter_templates_title')}</h2>
+                    <p className="text-sm text-muted-foreground">{t('letter_templates_desc')}</p>
                 </div>
                 <Link
                     href="/org/templates/create"
                     className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-md font-medium hover:bg-secondary transition-colors"
                 >
                     <Plus className="w-4 h-4" />
-                    Create Template
+                    {t('create_template')}
                 </Link>
             </div>
 
@@ -139,7 +141,7 @@ export default function TemplatesPage() {
                             type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="Search templates by name..."
+                            placeholder={t('search_placeholder')}
                             className="w-full pl-10 pr-4 py-2 bg-muted/50 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                         />
                     </div>
@@ -148,7 +150,7 @@ export default function TemplatesPage() {
                         onChange={(e) => setFilterType(e.target.value)}
                         className="px-4 py-2 border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary"
                     >
-                        <option value="all">All Types</option>
+                        <option value="all">{t('all_letters')}</option>
                         <option value="HIERARCHICAL">Hierarchical</option>
                         <option value="CROSS_STRUCTURE">Cross-Structure</option>
                         <option value="STAFF">Staff</option>
@@ -190,7 +192,7 @@ export default function TemplatesPage() {
 
                             <div className="space-y-2 mb-4">
                                 <div className="flex items-center justify-between text-sm">
-                                    <span className="text-muted-foreground">Type:</span>
+                                    <span className="text-muted-foreground">{t('type')}:</span>
                                     <span className="px-2 py-0.5 bg-blue-100 text-blue-800 rounded text-xs font-medium">
                                         {template.letterType}
                                     </span>
@@ -200,7 +202,7 @@ export default function TemplatesPage() {
                                     <span className="font-medium text-foreground">{template.usageCount} times</span>
                                 </div>
                                 <div className="flex items-center justify-between text-sm">
-                                    <span className="text-muted-foreground">Created:</span>
+                                    <span className="text-muted-foreground">{t('date')}:</span>
                                     <span className="text-muted-foreground">{template.createdAt}</span>
                                 </div>
                             </div>
@@ -235,7 +237,7 @@ export default function TemplatesPage() {
             {filteredTemplates.length === 0 && (
                 <div className="bg-card rounded-xl border border-border p-12 text-center">
                     <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                    <p className="text-muted-foreground">No templates found matching your criteria</p>
+                    <p className="text-muted-foreground">{t('recent_activity')}</p>
                 </div>
             )}
         </div>

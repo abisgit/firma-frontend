@@ -6,22 +6,24 @@ import { useState, useEffect } from 'react';
 import { Plus, Search, Filter } from 'lucide-react';
 import Link from 'next/link';
 import { getLetters } from '@/lib/api';
-
-const letterFilters = [
-    { label: 'All Letters', value: 'all' },
-    { label: 'Sent to Organizations', value: 'sent_to_orgs' },
-    { label: 'Sent to Employees', value: 'sent_to_employees' },
-    { label: 'Applications', value: 'applications' }, // Assuming Guest
-    { label: 'CC to Us', value: 'cc' }, // Requires support
-    { label: 'Received', value: 'received' },
-    { label: 'Drafts', value: 'drafts' },
-];
+import { useLanguage } from '@/lib/LanguageContext';
 
 export default function LettersPage() {
+    const { t } = useLanguage();
     const [activeFilter, setActiveFilter] = useState('all');
     const [letters, setLetters] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+
+    const letterFilters = [
+        { label: t('all_letters'), value: 'all' },
+        { label: t('sent_to_orgs'), value: 'sent_to_orgs' },
+        { label: t('sent_to_employees'), value: 'sent_to_employees' },
+        { label: t('applications'), value: 'applications' },
+        { label: t('cc_to_us'), value: 'cc' },
+        { label: t('received'), value: 'received' },
+        { label: t('drafts'), value: 'drafts' },
+    ];
 
     useEffect(() => {
         getLetters()
@@ -31,7 +33,7 @@ export default function LettersPage() {
     }, []);
 
     const filteredLetters = letters.filter(letter => {
-        // Search Filter
+        // ... (existing search logic remains same)
         const matchesSearch =
             (letter.referenceNumber || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
             (letter.subject || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -45,10 +47,7 @@ export default function LettersPage() {
         if (activeFilter === 'sent_to_employees') return ['STAFF', 'C_STAFF'].includes(letter.letterType);
         if (activeFilter === 'sent_to_orgs') return ['HIERARCHICAL', 'CROSS_STRUCTURE', 'HEAD_OFFICE'].includes(letter.letterType);
         if (activeFilter === 'drafts') return letter.status === 'DRAFT';
-        if (activeFilter === 'applications') return letter.letterType === 'GUEST'; // assumption
-        // 'received' and 'cc' might require checking current user's org vs sender, or specific list endpoints
-        // For now, let's assume 'received' means 'status === RECEIVED' (if that status exists)
-        // or if letter.recipientOrgId === myOrgId (requires knowing myOrgId)
+        if (activeFilter === 'applications') return letter.letterType === 'GUEST';
 
         return true;
     });
@@ -57,15 +56,15 @@ export default function LettersPage() {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h2 className="text-xl font-bold text-primary">Letters Management</h2>
-                    <p className="text-sm text-muted-foreground">Create, manage, and track all correspondence</p>
+                    <h2 className="text-xl font-bold text-primary">{t('letters_management_title')}</h2>
+                    <p className="text-sm text-muted-foreground">{t('letters_management_desc')}</p>
                 </div>
                 <Link
                     href="/org/letters/create"
                     className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-md font-medium hover:bg-secondary transition-colors"
                 >
                     <Plus className="w-4 h-4" />
-                    Create Letter
+                    {t('create_letter')}
                 </Link>
             </div>
 
@@ -95,13 +94,13 @@ export default function LettersPage() {
                         type="text"
                         value={searchTerm}
                         onChange={e => setSearchTerm(e.target.value)}
-                        placeholder="Search letters by reference number, subject, or recipient..."
+                        placeholder={t('search_placeholder')}
                         className="w-full pl-10 pr-4 py-2 bg-muted/50 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                 </div>
                 <button className="flex items-center gap-2 px-4 py-2 border border-border rounded-md hover:bg-muted/50">
                     <Filter className="w-4 h-4" />
-                    More Filters
+                    {t('type')}
                 </button>
             </div>
 
@@ -110,12 +109,12 @@ export default function LettersPage() {
                 <table className="w-full text-left">
                     <thead className="bg-muted/50 border-b border-border text-xs uppercase text-muted-foreground tracking-wider">
                         <tr>
-                            <th className="px-6 py-4 font-medium">Reference #</th>
-                            <th className="px-6 py-4 font-medium">Subject</th>
-                            <th className="px-6 py-4 font-medium">Type</th>
-                            <th className="px-6 py-4 font-medium">Recipient</th>
-                            <th className="px-6 py-4 font-medium">Status</th>
-                            <th className="px-6 py-4 font-medium">Date</th>
+                            <th className="px-6 py-4 font-medium">{t('reference_number')}</th>
+                            <th className="px-6 py-4 font-medium">{t('subject')}</th>
+                            <th className="px-6 py-4 font-medium">{t('type')}</th>
+                            <th className="px-6 py-4 font-medium">{t('received')}</th>
+                            <th className="px-6 py-4 font-medium">{t('status')}</th>
+                            <th className="px-6 py-4 font-medium">{t('date')}</th>
                             <th className="px-6 py-4 font-medium">Actions</th>
                         </tr>
                     </thead>
@@ -123,7 +122,7 @@ export default function LettersPage() {
                         {loading ? (
                             <tr><td colSpan={7} className="p-8 text-center">Loading letters...</td></tr>
                         ) : filteredLetters.length === 0 ? (
-                            <tr><td colSpan={7} className="p-8 text-center">No letters found.</td></tr>
+                            <tr><td colSpan={7} className="p-8 text-center">{t('recent_activity')}</td></tr>
                         ) : (
                             filteredLetters.map((letter) => (
                                 <tr key={letter.id} className="hover:bg-muted/30 transition-colors">

@@ -12,7 +12,8 @@ import {
     LogOut,
     ShieldAlert,
     FileStack,
-    Briefcase
+    Briefcase,
+    ShieldCheck
 } from 'lucide-react';
 import { clsx } from 'clsx';
 
@@ -58,6 +59,7 @@ export default function Sidebar({ role }: SidebarProps) {
         { name: t('templates'), href: '/org/templates', icon: FileStack, permission: 'view_templates' },
         { name: t('reports'), href: '/org/reports', icon: GitPullRequest, permission: 'view_reports' },
         { name: t('hr_management'), href: '/org/hr', icon: Briefcase, permission: 'view_hr' },
+        { name: t('roles_permissions'), href: '/org/roles', icon: ShieldCheck, permission: 'manage_organizations' },
     ];
 
     const rawItems = role === 'admin' ? adminItems : orgItems;
