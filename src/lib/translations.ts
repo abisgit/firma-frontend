@@ -43,6 +43,7 @@ export const translations = {
         employee: 'Employee',
         position: 'Position',
         department: 'Department',
+        messages: 'Messages',
     },
     am: {
         dashboard: 'ዳሽቦርድ',
@@ -89,6 +90,7 @@ export const translations = {
         employee: 'ሰራተኛ',
         position: 'የስራ መደብ',
         department: 'ክፍል',
+        messages: 'መልዕክቶች',
     }
 };
 

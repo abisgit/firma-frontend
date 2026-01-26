@@ -37,6 +37,11 @@ export const login = async (credentials: any) => {
     return response.data;
 };
 
+export const registerApplicant = async (data: any) => {
+    const response = await api.post('/auth/register/public', data);
+    return response.data;
+};
+
 // Employees
 export const getEmployees = async () => {
     const response = await api.get('/users');

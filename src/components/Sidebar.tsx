@@ -13,7 +13,9 @@ import {
     ShieldAlert,
     FileStack,
     Briefcase,
-    ShieldCheck
+    ShieldCheck,
+    MessageSquare,
+    Monitor
 } from 'lucide-react';
 import { clsx } from 'clsx';
 
@@ -51,11 +53,13 @@ export default function Sidebar({ role }: SidebarProps) {
         { name: t('dashboard'), href: '/admin/dashboard', icon: LayoutDashboard },
         { name: 'Organizations', href: '/admin/organizations', icon: Building2, permission: 'manage_organizations' },
         { name: 'User Management', href: '/admin/users', icon: Users, permission: 'manage_employees' },
+        { name: 'Landing Page', href: '/admin/marketing', icon: Monitor, permission: 'manage_organizations' },
     ];
 
     const orgItems: SidebarItem[] = [
         { name: t('dashboard'), href: '/org/dashboard', icon: LayoutDashboard },
         { name: t('letters'), href: '/org/letters', icon: FileText, permission: 'view_letters' },
+        { name: t('messages'), href: '/org/messages', icon: MessageSquare, permission: 'view_letters' },
         { name: t('templates'), href: '/org/templates', icon: FileStack, permission: 'view_templates' },
         { name: t('reports'), href: '/org/reports', icon: GitPullRequest, permission: 'view_reports' },
         { name: t('hr_management'), href: '/org/hr', icon: Briefcase, permission: 'view_hr' },

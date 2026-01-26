@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { login } from '@/lib/api';
 import { Shield } from 'lucide-react';
 
@@ -24,11 +25,13 @@ export default function LoginPage() {
 
             if (data.user.role === 'SUPER_ADMIN') {
                 router.push('/admin/dashboard');
+            } else if (data.user.role === 'APPLICANT') {
+                router.push('/applicant/dashboard');
             } else {
                 router.push('/org/dashboard');
             }
         } catch (err: any) {
-            setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
+            setError(err.response?.data?.error?.message || err.response?.data?.message || 'Login failed. Please check your credentials.');
         } finally {
             setLoading(false);
         }
@@ -85,6 +88,15 @@ export default function LoginPage() {
                         {loading ? 'Authenticating...' : 'Sign In'}
                     </button>
                 </form>
+
+                <div className="mt-6 text-center">
+                    <p className="text-sm text-muted-foreground">
+                        Are you an external applicant?{' '}
+                        <Link href="/register" className="text-primary hover:underline font-medium">
+                            Register here
+                        </Link>
+                    </p>
+                </div>
 
                 <p className="text-center text-xs text-muted-foreground mt-8">
                     Secure Government Document Management Platform
