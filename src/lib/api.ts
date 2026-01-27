@@ -90,8 +90,41 @@ export const getSubOrganizations = async () => {
     return response.data;
 };
 
+// Templates
+export const getTemplates = async (active?: boolean) => {
+    const response = await api.get('/templates', {
+        params: { active }
+    });
+    return response.data;
+};
+
+export const getTemplate = async (id: string) => {
+    const response = await api.get(`/templates/${id}`);
+    return response.data;
+};
+
+export const createTemplate = async (data: any) => {
+    const response = await api.post('/templates', data);
+    return response.data;
+};
+
+export const updateTemplate = async (id: string, data: any) => {
+    const response = await api.put(`/templates/${id}`, data);
+    return response.data;
+};
+
+export const deleteTemplate = async (id: string) => {
+    const response = await api.delete(`/templates/${id}`);
+    return response.data;
+};
+
 export const getLetters = async () => {
     const response = await api.get('/letters');
+    return response.data;
+};
+
+export const createLetter = async (data: any) => {
+    const response = await api.post('/letters', data);
     return response.data;
 };
 

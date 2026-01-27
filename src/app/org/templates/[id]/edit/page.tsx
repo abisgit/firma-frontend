@@ -22,13 +22,15 @@ const letterTypes = [
 
 // No mock needed
 
+import { getTemplate, updateTemplate } from '@/lib/api';
+
 export default function EditTemplatePage() {
     const router = useRouter();
     const params = useParams();
     const [loading, setLoading] = useState(true);
     const [formData, setFormData] = useState({
         name: '',
-        letterType: 'Hierarchical',
+        letterType: 'HIERARCHICAL',
         content: '',
         isActive: true,
     });
@@ -36,32 +38,28 @@ export default function EditTemplatePage() {
     useEffect(() => {
         const fetchTemplate = async () => {
             try {
-                const token = localStorage.getItem('token');
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/templates/${params.id}`, {
-                    headers: { Authorization: `Bearer ${token}` }
+                if (!params?.id) return;
+                const data = await getTemplate(params.id as string);
+                setFormData({
+                    name: data.name,
+                    letterType: data.letterType,
+                    content: data.content,
+                    isActive: data.isActive
                 });
-                if (res.ok) {
-                    const data = await res.json();
-                    setFormData({
-                        name: data.name,
-                        letterType: data.letterType,
-                        content: data.content,
-                        isActive: data.isActive
-                    });
-                } else {
-                    alert('Template not found');
-                    router.push('/org/templates');
-                }
-            } catch (err) {
+            } catch (err: any) {
                 console.error(err);
+                if (err.response?.status === 404) {
+                    alert('Template not found');
+                } else {
+                    alert('Failed to load template. Please try again.');
+                }
+                router.push('/org/templates');
             } finally {
                 setLoading(false);
             }
         };
-        if (params.id) {
-            fetchTemplate();
-        }
-    }, [params.id]);
+        fetchTemplate();
+    }, [params?.id, router]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -72,26 +70,13 @@ export default function EditTemplatePage() {
         }
 
         try {
-            const token = localStorage.getItem('token');
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/templates/${params.id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`
-                },
-                body: JSON.stringify(formData)
-            });
-
-            if (res.ok) {
-                alert('Template updated successfully!');
-                router.push('/org/templates');
-            } else {
-                const err = await res.json();
-                alert(`Error: ${err.message}`);
-            }
-        } catch (err) {
+            await updateTemplate(params?.id as string, formData);
+            alert('Template updated successfully!');
+            router.push('/org/templates');
+        } catch (err: any) {
             console.error(err);
-            alert('Failed to update template');
+            const message = err.response?.data?.message || 'Failed to update template';
+            alert(`Error: ${message}`);
         }
     };
 

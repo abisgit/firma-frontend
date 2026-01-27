@@ -13,7 +13,7 @@ const RichTextEditor = dynamic(() => import('@/components/editor/RichTextEditor'
     loading: () => <div className="h-[500px] w-full bg-muted animate-pulse rounded-lg" />
 });
 
-import api, { getEmployees, getOrganizations } from '@/lib/api';
+import api, { getEmployees, getOrganizations, createLetter } from '@/lib/api';
 
 const letterTypes = [
     { id: 'HIERARCHICAL', label: 'Hierarchical' },
@@ -61,14 +61,8 @@ export default function CreateLetterPage() {
 
     const fetchMyStamps = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/stamps`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            if (res.ok) {
-                const data = await res.json();
-                setMyStamps(data);
-            }
+            const res = await api.get('/stamps');
+            setMyStamps(res.data);
         } catch (err) {
             console.error('Failed to fetch my stamps', err);
         }
@@ -125,7 +119,6 @@ export default function CreateLetterPage() {
 
     const handleSend = async () => {
         try {
-            const token = localStorage.getItem('token');
             const payload = {
                 ...formData,
                 classification: 'INTERNAL',
@@ -134,26 +127,13 @@ export default function CreateLetterPage() {
                 stampY: stampPos.y,
             };
 
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/letters`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`
-                },
-                body: JSON.stringify(payload)
-            });
-
-            if (res.ok) {
-                const letter = await res.json();
-                alert('Letter created successfully');
-                router.push(`/org/letters/${letter.referenceNumber}`);
-            } else {
-                const err = await res.json();
-                alert(`Failed to send: ${err.message}`);
-            }
-        } catch (err) {
+            const data = await createLetter(payload);
+            alert('Letter created successfully');
+            router.push(`/org/letters/${data.referenceNumber}`);
+        } catch (err: any) {
             console.error(err);
-            alert('Error sending letter');
+            const message = err.response?.data?.message || 'Error sending letter';
+            alert(`Failed to send: ${message}`);
         }
     };
 

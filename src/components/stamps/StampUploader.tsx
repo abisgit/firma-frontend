@@ -14,6 +14,8 @@ interface StampUploaderProps {
     userId?: string; // Optional: specify user to upload for
 }
 
+import api from '@/lib/api';
+
 export default function StampUploader({ onSelect, onClose, userId }: StampUploaderProps) {
     const [stamps, setStamps] = useState<Stamp[]>([]);
     const [uploading, setUploading] = useState(false);
@@ -25,20 +27,9 @@ export default function StampUploader({ onSelect, onClose, userId }: StampUpload
 
     const fetchStamps = async () => {
         try {
-            const token = localStorage.getItem('token');
-            // If userId is provided, we might need a new endpoint OR the backend should handle it
-            // For now, let's assume we fetch the target user's stamps if userId is provided
-            const url = userId
-                ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/stamps/user/${userId}`
-                : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/stamps`;
-
-            const res = await fetch(url, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            if (res.ok) {
-                const data = await res.json();
-                setStamps(data);
-            }
+            const url = userId ? `/stamps/user/${userId}` : `/stamps`;
+            const res = await api.get(url);
+            setStamps(res.data);
         } catch (err) {
             console.error(err);
         }
@@ -56,21 +47,14 @@ export default function StampUploader({ onSelect, onClose, userId }: StampUpload
         }
 
         try {
-            const token = localStorage.getItem('token');
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/stamps`, {
-                method: 'POST',
-                headers: { Authorization: `Bearer ${token}` },
-                body: formData
+            await api.post('/stamps', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
             });
-            if (res.ok) {
-                await fetchStamps();
-            } else {
-                const errData = await res.json();
-                alert(`Failed to upload: ${errData.message}`);
-            }
-        } catch (err) {
+            await fetchStamps();
+        } catch (err: any) {
             console.error(err);
-            alert('Error uploading');
+            const message = err.response?.data?.message || 'Error uploading';
+            alert(`Failed to upload: ${message}`);
         } finally {
             setUploading(false);
         }
@@ -81,16 +65,11 @@ export default function StampUploader({ onSelect, onClose, userId }: StampUpload
         if (!confirm('Delete this stamp?')) return;
 
         try {
-            const token = localStorage.getItem('token');
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/stamps/${id}`, {
-                method: 'DELETE',
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            if (res.ok) {
-                setStamps(prev => prev.filter(s => s.id !== id));
-            }
+            await api.delete(`/stamps/${id}`);
+            setStamps(prev => prev.filter(s => s.id !== id));
         } catch (err) {
             console.error(err);
+            alert('Failed to delete stamp');
         }
     };
 

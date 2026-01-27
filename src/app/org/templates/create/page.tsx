@@ -20,6 +20,8 @@ const letterTypes = [
     { id: 'GUEST', label: 'Guest' },
 ];
 
+import { createTemplate } from '@/lib/api';
+
 export default function CreateTemplatePage() {
     const router = useRouter();
     const [formData, setFormData] = useState({
@@ -38,26 +40,13 @@ export default function CreateTemplatePage() {
         }
 
         try {
-            const token = localStorage.getItem('token');
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/templates`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`
-                },
-                body: JSON.stringify(formData)
-            });
-
-            if (res.ok) {
-                alert('Template created successfully!');
-                router.push('/org/templates');
-            } else {
-                const err = await res.json();
-                alert(`Error: ${err.message}`);
-            }
-        } catch (err) {
+            await createTemplate(formData);
+            alert('Template created successfully!');
+            router.push('/org/templates');
+        } catch (err: any) {
             console.error(err);
-            alert('Failed to create template');
+            const message = err.response?.data?.message || 'Failed to create template';
+            alert(`Error: ${message}`);
         }
     };
 
