@@ -17,7 +17,8 @@ import {
     MessageSquare,
     Monitor,
     ClipboardList,
-    CreditCard
+    CreditCard,
+    User
 } from 'lucide-react';
 import { clsx } from 'clsx';
 
@@ -67,6 +68,8 @@ export default function Sidebar({ role }: SidebarProps) {
         { name: t('templates'), href: '/org/templates', icon: FileStack, permission: 'view_templates' },
         { name: t('reports'), href: '/org/reports', icon: GitPullRequest, permission: 'view_reports' },
         { name: t('hr_management'), href: '/org/hr', icon: Briefcase, permission: 'view_hr' },
+        { name: 'My Documents', href: '/org/my-documents', icon: FileStack },
+        { name: 'Profile', href: '/org/profile', icon: User },
         { name: 'Billing', href: '/org/billing', icon: CreditCard, permission: 'manage_organizations' },
         { name: t('roles_permissions'), href: '/org/roles', icon: ShieldCheck, permission: 'manage_organizations' },
     ];
@@ -94,7 +97,7 @@ export default function Sidebar({ role }: SidebarProps) {
                 <span className="text-2xl font-bold tracking-tight">FIRMA</span>
             </div>
 
-            <nav className="flex-1 px-4 mt-4 space-y-2">
+            <nav className="flex-1 px-4 mt-4 space-y-2 overflow-y-auto custom-scrollbar">
                 {items.map((item) => {
                     const isActive = pathname === item.href;
                     return (

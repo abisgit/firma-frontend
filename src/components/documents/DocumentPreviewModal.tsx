@@ -1,0 +1,78 @@
+"use client";
+
+import { X, FileText, Download } from 'lucide-react';
+import { useState } from 'react';
+
+interface DocumentPreviewModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    document: {
+        title: string;
+        type: string;
+        fileName: string;
+        fileUrl?: string; // Optional for now
+        description?: string;
+    } | null;
+}
+
+export default function DocumentPreviewModal({ isOpen, onClose, document }: DocumentPreviewModalProps) {
+    if (!isOpen || !document) return null;
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 transition-opacity animate-in fade-in duration-200">
+            <div className="bg-white w-full max-w-4xl h-[85vh] rounded-2xl shadow-2xl overflow-hidden border border-border flex flex-col">
+                {/* Header */}
+                <div className="flex justify-between items-center p-4 border-b border-border bg-white">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-primary/10 rounded-lg text-primary">
+                            <FileText className="w-5 h-5" />
+                        </div>
+                        <div>
+                            <h3 className="text-lg font-bold text-foreground">{document.title}</h3>
+                            <p className="text-xs text-muted-foreground">{document.fileName} • {document.type}</p>
+                        </div>
+                    </div>
+                    <div className="flex gap-2">
+                        <button className="p-2 hover:bg-muted rounded-full transition-colors text-muted-foreground">
+                            <Download className="w-5 h-5" />
+                        </button>
+                        <button onClick={onClose} className="p-2 hover:bg-muted rounded-full transition-colors">
+                            <X className="w-5 h-5" />
+                        </button>
+                    </div>
+                </div>
+
+                {/* Content */}
+                <div className="flex-1 bg-muted/20 p-8 flex items-center justify-center overflow-auto">
+                    {document.fileUrl ? (
+                        // If we had a real URL, we would show it here in an iframe or similar
+                        // For PDF mostly. For now we will show a placeholder if it's not a real displayable URL
+                        <iframe
+                            src={document.fileUrl}
+                            className="w-full h-full rounded-xl border border-border bg-white shadow-sm"
+                            title="Document Preview"
+                        />
+                    ) : (
+                        <div className="text-center space-y-4 max-w-md">
+                            <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto shadow-sm border border-border">
+                                <FileText className="w-10 h-10 text-muted-foreground/50" />
+                            </div>
+                            <div>
+                                <h4 className="text-xl font-bold text-foreground">Preview Not Available</h4>
+                                <p className="text-muted-foreground">
+                                    This document is a mock upload and does not have a displayable permanent file URL yet.
+                                </p>
+                            </div>
+                            {document.description && (
+                                <div className="p-4 bg-white rounded-xl border border-border text-sm text-left">
+                                    <span className="font-bold block mb-1">Description:</span>
+                                    {document.description}
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+}

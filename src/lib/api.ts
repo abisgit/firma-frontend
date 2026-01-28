@@ -128,4 +128,31 @@ export const createLetter = async (data: any) => {
     return response.data;
 };
 
+// HR
+export const getLeaves = async () => {
+    const response = await api.get('/hr/leaves');
+    return response.data;
+};
+
+export const createLeave = async (data: any) => {
+    const response = await api.post('/hr/leaves', data);
+    return response.data;
+};
+
+export const updateLeaveStatus = async (id: string, status: string) => {
+    const response = await api.patch(`/hr/leaves/${id}/status`, { status });
+    return response.data;
+};
+
+export const getReviews = async () => {
+    const response = await api.get('/hr/reviews');
+    return response.data;
+};
+
+export const createReview = async (data: any) => {
+    const response = await api.post('/hr/reviews', data);
+    return response.data;
+};
+
+export { getBaseURL };
 export default api;

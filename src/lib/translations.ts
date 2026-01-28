@@ -1,5 +1,7 @@
 export const translations = {
     en: {
+        my_documents: 'My Documents',
+        profile: 'Profile',
         dashboard: 'Dashboard',
         letters: 'Letters',
         templates: 'Templates',
@@ -46,6 +48,8 @@ export const translations = {
         messages: 'Messages',
     },
     am: {
+        my_documents: 'የእኔ ሰነዶች',
+        profile: 'መገለጫ',
         dashboard: 'ዳሽቦርድ',
         letters: 'ደብዳቤዎች',
         templates: 'ቴምፕሌቶች',
