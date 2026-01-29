@@ -1,7 +1,7 @@
 "use client";
 
 import { X, FileText, Download } from 'lucide-react';
-import { useState } from 'react';
+import { getBaseURL } from '@/lib/api';
 
 interface DocumentPreviewModalProps {
     isOpen: boolean;
@@ -10,13 +10,22 @@ interface DocumentPreviewModalProps {
         title: string;
         type: string;
         fileName: string;
-        fileUrl?: string; // Optional for now
+        fileUrl?: string; // Optional
         description?: string;
     } | null;
 }
 
 export default function DocumentPreviewModal({ isOpen, onClose, document }: DocumentPreviewModalProps) {
     if (!isOpen || !document) return null;
+
+    const getFullUrl = (url: string) => {
+        if (url.startsWith('http')) return url;
+        return `${getBaseURL()}${url}`;
+    };
+
+    const fullUrl = document.fileUrl ? getFullUrl(document.fileUrl) : null;
+    const isImage = document.fileName.match(/\.(jpg|jpeg|png|gif|webp)$/i);
+    // PDF detection for iframe optimization if needed, though default iframe handles pdfs well usually
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 transition-opacity animate-in fade-in duration-200">
@@ -33,9 +42,17 @@ export default function DocumentPreviewModal({ isOpen, onClose, document }: Docu
                         </div>
                     </div>
                     <div className="flex gap-2">
-                        <button className="p-2 hover:bg-muted rounded-full transition-colors text-muted-foreground">
-                            <Download className="w-5 h-5" />
-                        </button>
+                        {fullUrl && (
+                            <a
+                                href={fullUrl}
+                                download
+                                target="_blank"
+                                rel="noreferrer"
+                                className="p-2 hover:bg-muted rounded-full transition-colors text-muted-foreground"
+                            >
+                                <Download className="w-5 h-5" />
+                            </a>
+                        )}
                         <button onClick={onClose} className="p-2 hover:bg-muted rounded-full transition-colors">
                             <X className="w-5 h-5" />
                         </button>
@@ -44,14 +61,22 @@ export default function DocumentPreviewModal({ isOpen, onClose, document }: Docu
 
                 {/* Content */}
                 <div className="flex-1 bg-muted/20 p-8 flex items-center justify-center overflow-auto">
-                    {document.fileUrl ? (
-                        // If we had a real URL, we would show it here in an iframe or similar
-                        // For PDF mostly. For now we will show a placeholder if it's not a real displayable URL
-                        <iframe
-                            src={document.fileUrl}
-                            className="w-full h-full rounded-xl border border-border bg-white shadow-sm"
-                            title="Document Preview"
-                        />
+                    {fullUrl ? (
+                        <>
+                            {isImage ? (
+                                <img
+                                    src={fullUrl}
+                                    alt={document.title}
+                                    className="max-w-full max-h-full rounded-xl shadow-sm object-contain"
+                                />
+                            ) : (
+                                <iframe
+                                    src={fullUrl}
+                                    className="w-full h-full rounded-xl border border-border bg-white shadow-sm"
+                                    title="Document Preview"
+                                />
+                            )}
+                        </>
                     ) : (
                         <div className="text-center space-y-4 max-w-md">
                             <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto shadow-sm border border-border">

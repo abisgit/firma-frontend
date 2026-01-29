@@ -34,25 +34,16 @@ export default function UploadDocumentModal({ isOpen, onClose, onSuccess, userId
         try {
             setUploading(true);
 
-            // In a real app we would upload the file first then create the record
-            // For this implementation we are just creating the metadata record
-            // and pretending the file uploaded :) 
-            // In a real implementation you would use FormData
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('title', form.title);
+            formData.append('type', form.type);
+            formData.append('description', form.description);
+            formData.append('classification', 'INTERNAL');
+            formData.append('ownerId', userId);
+            formData.append('referenceNumber', `DOC-${Date.now()}`);
 
-            // Simulating upload...
-            console.log("Uploading file:", file.name);
-
-            await createDocument({
-                title: form.title,
-                referenceNumber: `DOC-${Date.now()}`, // Temporary gen
-                fileName: file.name,
-                fileSize: file.size,
-                type: form.type,
-                classification: 'INTERNAL',
-                description: form.description,
-                ownerId: userId,
-                // createdById handled by backend from token
-            });
+            await createDocument(formData);
 
             onSuccess();
             onClose();
