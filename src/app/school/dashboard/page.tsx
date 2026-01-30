@@ -50,7 +50,8 @@ export default function SchoolDashboard() {
             description: "+12% from last term",
             icon: Users,
             color: "text-blue-600",
-            bg: "bg-blue-100"
+            bg: "bg-blue-100",
+            href: "/school/students"
         },
         {
             title: "Total Teachers",
@@ -58,7 +59,8 @@ export default function SchoolDashboard() {
             description: "Full-time staff",
             icon: GraduationCap,
             color: "text-purple-600",
-            bg: "bg-purple-100"
+            bg: "bg-purple-100",
+            href: "/school/teachers"
         },
         {
             title: "Active Classes",
@@ -66,7 +68,8 @@ export default function SchoolDashboard() {
             description: "Across all grades",
             icon: BookOpen,
             color: "text-green-600",
-            bg: "bg-green-100"
+            bg: "bg-green-100",
+            href: "/school/classes"
         },
         {
             title: "Attendance Rate",
@@ -74,7 +77,8 @@ export default function SchoolDashboard() {
             description: "Average this week",
             icon: TrendingUp,
             color: "text-orange-600",
-            bg: "bg-orange-100"
+            bg: "bg-orange-100",
+            href: "/school/attendance"
         }
     ];
 
@@ -82,7 +86,7 @@ export default function SchoolDashboard() {
         <div className="space-y-6">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 {cards.map((card, index) => (
-                    <div key={index} className="bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition-shadow">
+                    <a key={index} href={card.href} className="bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition-shadow cursor-pointer block">
                         <div className="flex flex-row items-center justify-between pb-2">
                             <h3 className="text-sm font-medium text-muted-foreground">
                                 {card.title}
@@ -97,7 +101,7 @@ export default function SchoolDashboard() {
                                 {card.description}
                             </p>
                         </div>
-                    </div>
+                    </a>
                 ))}
             </div>
 

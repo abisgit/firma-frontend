@@ -89,9 +89,11 @@ export default function Sidebar({ role }: SidebarProps) {
         { name: 'Students', href: '/school/students', icon: Users, permission: 'manage_students' },
         { name: 'Teachers', href: '/school/teachers', icon: GraduationCap, permission: 'manage_teachers' },
         { name: 'Classes', href: '/school/classes', icon: BookOpen, permission: 'manage_classes' },
+        { name: 'Courses', href: '/school/courses', icon: ClipboardList, permission: 'manage_classes' },
         { name: 'Timetable', href: '/school/timetable', icon: Calendar, permission: 'view_timetable' },
         { name: 'Grades', href: '/school/grades', icon: Award, permission: 'view_grades' },
         { name: 'Attendance', href: '/school/attendance', icon: CheckSquare, permission: 'manage_attendance' },
+        { name: 'Inbox', href: '/school/inbox', icon: MessageSquare },
         { name: 'My Documents', href: '/school/documents', icon: FileStack },
         { name: 'Profile', href: '/school/profile', icon: User },
     ];

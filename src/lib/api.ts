@@ -194,6 +194,17 @@ export const createClass = async (data: any) => {
     return response.data;
 };
 
+// Subjects (Courses)
+export const getSubjects = async () => {
+    const response = await api.get('/subjects');
+    return response.data;
+};
+
+export const createSubject = async (data: any) => {
+    const response = await api.post('/subjects', data);
+    return response.data;
+};
+
 // Attendance
 export const getAttendanceByClass = async (classId: string, date?: string) => {
     const response = await api.get(`/attendance/class/${classId}`, { params: { date } });
@@ -229,6 +240,11 @@ export const getStudentGrades = async (studentId?: string) => {
 // Timetable
 export const getTimetableByClass = async (classId: string) => {
     const response = await api.get(`/timetable/class/${classId}`);
+    return response.data;
+};
+
+export const createTimetableEntry = async (data: any) => {
+    const response = await api.post('/timetable', data);
     return response.data;
 };
 
