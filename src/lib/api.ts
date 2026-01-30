@@ -63,6 +63,21 @@ export const updateEmployee = async (id: string, data: any) => {
     return response.data;
 };
 
+export const uploadSignature = async (id: string, data: FormData) => {
+    const response = await api.post(`/users/${id}/signature`, data);
+    return response.data;
+};
+
+export const updateProfile = async (data: { fullName?: string; phoneNumber?: string; position?: string }) => {
+    const response = await api.patch('/users/profile', data);
+    return response.data;
+};
+
+export const uploadProfileImage = async (id: string, data: FormData) => {
+    const response = await api.post(`/users/${id}/profile-image`, data);
+    return response.data;
+};
+
 // Organizations
 export const createOrganization = async (data: any) => {
     const response = await api.post('/organizations', data);

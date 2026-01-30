@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from 'react';
-import { ArrowLeft, Save, Send, Copy, Printer, FileText, Search, X, Building2, Image as ImageIcon, Stamp as StampIcon } from 'lucide-react';
+import { ArrowLeft, Save, Send, Copy, Printer, FileText, Search, X, Building2, Image as ImageIcon, Stamp as StampIcon, PenTool } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import StampOverlay from '@/components/stamps/StampOverlay';
@@ -13,7 +13,7 @@ const RichTextEditor = dynamic(() => import('@/components/editor/RichTextEditor'
     loading: () => <div className="h-[500px] w-full bg-muted animate-pulse rounded-lg" />
 });
 
-import api, { getEmployees, getOrganizations, createLetter } from '@/lib/api';
+import api, { getEmployees, getOrganizations, createLetter, getEmployee } from '@/lib/api';
 
 const letterTypes = [
     { id: 'HIERARCHICAL', label: 'Hierarchical' },
@@ -37,10 +37,14 @@ export default function CreateLetterPage() {
     const [showSearchModal, setShowSearchModal] = useState(false);
     const [orgSearchQuery, setOrgSearchQuery] = useState('');
 
-    // Stamp state
+    // Stamp & Signature state
+    const [user, setUser] = useState<any>(null);
     const [selectedStamp, setSelectedStamp] = useState<any>(null);
     const [myStamps, setMyStamps] = useState<any[]>([]);
     const [stampPos, setStampPos] = useState({ x: 0.8, y: 0.8 });
+    const [showSignature, setShowSignature] = useState(true);
+    const [signaturePos, setSignaturePos] = useState({ x: 0.6, y: 0.8 });
+
     const contentRef = useRef<HTMLDivElement>(null);
 
     const [formData, setFormData] = useState({
@@ -57,12 +61,28 @@ export default function CreateLetterPage() {
         fetchEmployeesList();
         fetchOrganizationsList();
         fetchMyStamps();
+        fetchCurrentUser();
     }, []);
+
+    const fetchCurrentUser = () => {
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+            const parsed = JSON.parse(storedUser);
+            getEmployee(parsed.id).then(data => {
+                setUser(data);
+            });
+        }
+    };
 
     const fetchMyStamps = async () => {
         try {
             const res = await api.get('/stamps');
             setMyStamps(res.data);
+            // Auto-select first stamp if available? Maybe wait for user action or check prefs.
+            // Prompt says: "if the user have both both will be seen". So we should auto-select logic.
+            if (res.data.length > 0 && !selectedStamp) {
+                setSelectedStamp(res.data[0]);
+            }
         } catch (err) {
             console.error('Failed to fetch my stamps', err);
         }
@@ -119,6 +139,9 @@ export default function CreateLetterPage() {
 
     const handleSend = async () => {
         try {
+            // Note: We are sending stamp position but not signature position currently 
+            // as the backend schema doesn't support signature coords yet.
+            // In a full implementation we would update schema or send metadata.
             const payload = {
                 ...formData,
                 classification: 'INTERNAL',
@@ -274,6 +297,15 @@ export default function CreateLetterPage() {
                         <div className="flex justify-between items-center mb-2">
                             <label className="block text-sm font-medium text-foreground">Letter Composition</label>
                             <div className="flex gap-4">
+                                {user?.signatureUrl && (
+                                    <button
+                                        onClick={() => setShowSignature(!showSignature)}
+                                        className="flex items-center gap-2 text-sm text-primary hover:underline"
+                                    >
+                                        <PenTool className="w-4 h-4" />
+                                        {showSignature ? 'Remove Signature' : 'Add Signature'}
+                                    </button>
+                                )}
                                 {myStamps.length > 0 && (
                                     <button
                                         onClick={() => {
@@ -300,6 +332,18 @@ export default function CreateLetterPage() {
                                 content={formData.content}
                                 onChange={(html) => setFormData({ ...formData, content: html })}
                             />
+
+                            {/* Signature Overlay */}
+                            {user?.signatureUrl && showSignature && (
+                                <StampOverlay
+                                    imageUrl={user.signatureUrl}
+                                    initialX={selectedStamp ? signaturePos.x : 0.8}
+                                    initialY={signaturePos.y}
+                                    editable={true}
+                                    onPositionChange={(x, y) => setSignaturePos({ x, y })}
+                                    parentRef={contentRef}
+                                />
+                            )}
 
                             {/* Stamp Overlay */}
                             {selectedStamp && (
