@@ -18,11 +18,16 @@ import {
     Monitor,
     ClipboardList,
     CreditCard,
-    User
+    User,
+    GraduationCap,
+    BookOpen,
+    Calendar,
+    CheckSquare,
+    Award
 } from 'lucide-react';
 import { clsx } from 'clsx';
 
-import { Role, Permission, hasPermission } from '@/lib/permissions';
+import { Role, Permission, hasPermission, IndustryType } from '@/lib/permissions';
 
 interface SidebarItem {
     name: string;
@@ -44,11 +49,16 @@ export default function Sidebar({ role }: SidebarProps) {
 
     // Get user role safely
     const [userRole, setUserRole] = useState<Role>('OFFICER');
+    const [industryType, setIndustryType] = useState<IndustryType>('GOVERNMENT');
 
     useEffect(() => {
         const userData = localStorage.getItem('user');
         if (userData) {
-            setUserRole(JSON.parse(userData).role);
+            const user = JSON.parse(userData);
+            setUserRole(user.role);
+            if (user.industryType) {
+                setIndustryType(user.industryType);
+            }
         }
     }, []);
 
@@ -74,7 +84,21 @@ export default function Sidebar({ role }: SidebarProps) {
         { name: t('roles_permissions'), href: '/org/roles', icon: ShieldCheck, permission: 'manage_organizations' },
     ];
 
-    const rawItems = role === 'admin' ? adminItems : orgItems;
+    const educationItems: SidebarItem[] = [
+        { name: 'Dashboard', href: '/school/dashboard', icon: LayoutDashboard },
+        { name: 'Students', href: '/school/students', icon: Users, permission: 'manage_students' },
+        { name: 'Teachers', href: '/school/teachers', icon: GraduationCap, permission: 'manage_teachers' },
+        { name: 'Classes', href: '/school/classes', icon: BookOpen, permission: 'manage_classes' },
+        { name: 'Timetable', href: '/school/timetable', icon: Calendar, permission: 'view_timetable' },
+        { name: 'Grades', href: '/school/grades', icon: Award, permission: 'view_grades' },
+        { name: 'Attendance', href: '/school/attendance', icon: CheckSquare, permission: 'manage_attendance' },
+        { name: 'My Documents', href: '/school/documents', icon: FileStack },
+        { name: 'Profile', href: '/school/profile', icon: User },
+    ];
+
+    const rawItems = role === 'admin'
+        ? adminItems
+        : (industryType === 'EDUCATION' ? educationItems : orgItems);
 
     // Filter items based on permissions
     const items = rawItems.filter(item =>

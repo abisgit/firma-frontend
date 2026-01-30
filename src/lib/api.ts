@@ -85,10 +85,6 @@ export const createOrganization = async (data: any) => {
 };
 
 export const getOrganization = async (id: string) => {
-    // Determine if 'id' is a UUID or a Code. The backend findUnique usually works by ID, 
-    // but we can try fetching by ID first or assume the backend handles it.
-    // If the ID passed is 'MOF-BD' (code), this might fail if backend expects UUID.
-    // For now, let's assume the backend endpoint handles ID lookup.
     const response = await api.get(`/organizations/${id}`);
     return response.data;
 };
@@ -99,8 +95,6 @@ export const updateOrganization = async (id: string, data: any) => {
 };
 
 export const getSubOrganizations = async () => {
-    // If there is a specific endpoint for sub-orgs, use it. Otherwise, assume getOrganizations filters or returns all.
-    // Ideally, current user's org's children.
     const response = await api.get('/organizations/sub-organizations');
     return response.data;
 };
@@ -166,6 +160,80 @@ export const getReviews = async () => {
 
 export const createReview = async (data: any) => {
     const response = await api.post('/hr/reviews', data);
+    return response.data;
+};
+
+// Education / School
+export const getStudents = async () => {
+    const response = await api.get('/students');
+    return response.data;
+};
+
+export const createStudent = async (data: any) => {
+    const response = await api.post('/students', data);
+    return response.data;
+};
+
+export const getTeachers = async () => {
+    const response = await api.get('/teachers');
+    return response.data;
+};
+
+export const createTeacher = async (data: any) => {
+    const response = await api.post('/teachers', data);
+    return response.data;
+};
+
+export const getClasses = async () => {
+    const response = await api.get('/classes');
+    return response.data;
+};
+
+export const createClass = async (data: any) => {
+    const response = await api.post('/classes', data);
+    return response.data;
+};
+
+// Attendance
+export const getAttendanceByClass = async (classId: string, date?: string) => {
+    const response = await api.get(`/attendance/class/${classId}`, { params: { date } });
+    return response.data;
+};
+
+export const markAttendance = async (data: any) => {
+    const response = await api.post('/attendance/mark', data);
+    return response.data;
+};
+
+export const getStudentAttendance = async (studentId?: string) => {
+    const response = await api.get(`/attendance/student${studentId ? `/${studentId}` : ''}`);
+    return response.data;
+};
+
+// Grades
+export const getGradesByClass = async (classId: string, termId?: string) => {
+    const response = await api.get(`/grades/class/${classId}`, { params: { termId } });
+    return response.data;
+};
+
+export const addGrade = async (data: any) => {
+    const response = await api.post('/grades', data);
+    return response.data;
+};
+
+export const getStudentGrades = async (studentId?: string) => {
+    const response = await api.get(`/grades/student${studentId ? `/${studentId}` : ''}`);
+    return response.data;
+};
+
+// Timetable
+export const getTimetableByClass = async (classId: string) => {
+    const response = await api.get(`/timetable/class/${classId}`);
+    return response.data;
+};
+
+export const addTimetableEntry = async (data: any) => {
+    const response = await api.post('/timetable', data);
     return response.data;
 };
 

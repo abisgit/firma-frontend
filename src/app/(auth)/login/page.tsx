@@ -28,7 +28,11 @@ export default function LoginPage() {
             } else if (data.user.role === 'APPLICANT') {
                 router.push('/applicant/dashboard');
             } else {
-                router.push('/org/dashboard');
+                if (data.user.industryType === 'EDUCATION') {
+                    router.push('/school/dashboard');
+                } else {
+                    router.push('/org/dashboard');
+                }
             }
         } catch (err: any) {
             setError(err.response?.data?.error?.message || err.response?.data?.message || 'Login failed. Please check your credentials.');
